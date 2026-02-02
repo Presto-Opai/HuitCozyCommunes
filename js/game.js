@@ -2,6 +2,10 @@
 //  GAME.JS — Boucle principale, input, initialisation
 // ============================================================
 
+// --- Cheat code buffer ---
+G._cheatBuf = '';
+G._cheatTimer = 0;
+
 // --- Input handling ---
 G.setupInput = function() {
     document.addEventListener('keydown', e => {
@@ -132,6 +136,20 @@ G.handleKey = function(key, e) {
         }
         if (e) e.preventDefault();
         return;
+    }
+
+    // Cheat code detection: type "fete" quickly
+    if (key.length === 1 && key.match(/[a-z]/i)) {
+        const now = Date.now();
+        if (now - G._cheatTimer > 2000) G._cheatBuf = '';
+        G._cheatTimer = now;
+        G._cheatBuf += key.toLowerCase();
+        if (G._cheatBuf.length > 10) G._cheatBuf = G._cheatBuf.slice(-10);
+        if (G._cheatBuf.endsWith('fete') && !s.feteActive) {
+            G.cheatSkipToFete();
+            G._cheatBuf = '';
+            return;
+        }
     }
 
     // Game keys
@@ -323,6 +341,57 @@ G.loadAndContinue = function() {
     } else {
         G.startNewGame();
     }
+};
+
+// --- Cheat: skip to Fete du Village ---
+G.cheatSkipToFete = function() {
+    const s = G.state;
+
+    // Mark all non-final quests as completed
+    for (const q of s.quests) {
+        const qd = DATA.QUESTS.find(x => x.id === q.id);
+        if (qd && !qd.isFinal) q.status = 'completed';
+    }
+
+    // Set villagers to goal
+    s.villagers = DATA.GOAL_VILLAGERS;
+    s.happiness = 500;
+    s.totalBuildings = 10;
+    s.totalHarvests = 30;
+    s.arrivalIndex = 99;
+
+    // Visit all communes
+    s.visitedCommunes = Object.keys(DATA.COMMUNES);
+
+    // All crop types harvested
+    s.harvestedCrops = Object.keys(DATA.CROPS);
+
+    // Observe enough animals
+    s.observedAnimals = Object.keys(DATA.WILDLIFE).slice(0, 5);
+
+    // Mark all NPCs as talked
+    for (const npc of s.npcs) {
+        npc.talked = true;
+        npc.gaveLoot = true;
+    }
+
+    // Activate the fete
+    s.feteActive = true;
+    s.fetePhase = 'gather';
+    s.feteInvited = [];
+    s.feteSeeds = false;
+
+    // Replace quests list to include fete
+    const hasFete = s.quests.some(q => q.id === 'fete');
+    if (!hasFete) {
+        s.quests.push({ id: 'fete', status: 'available' });
+    }
+
+    // Close any open menus
+    s.ui.menu = null;
+    s.ui.dialogue = null;
+
+    G.notify('CHEAT: Fete du Village activee! Parlez au Maire.', 7);
 };
 
 // --- Init ---
