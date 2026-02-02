@@ -1,0 +1,1138 @@
+// ============================================================
+//  RENDER.JS — Dessin et rendu du jeu
+// ============================================================
+
+// --- Sprite drawing helpers ---
+G.drawChar = function(ctx, sx, sy, s, bodyCol, hairCol, dir, bounce) {
+    const b = bounce||0;
+    // Shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.13)';
+    ctx.beginPath();
+    ctx.ellipse(sx+s/2, sy+s*0.92, s*0.28, s*0.07, 0, 0, Math.PI*2);
+    ctx.fill();
+    // Legs
+    ctx.fillStyle = '#5A7A5A';
+    const legOff = Math.sin(b*8)*s*0.03;
+    ctx.fillRect(sx+s*0.3, sy+s*0.66-b*2+legOff, s*0.14, s*0.22);
+    ctx.fillRect(sx+s*0.56, sy+s*0.66-b*2-legOff, s*0.14, s*0.22);
+    // Body
+    ctx.fillStyle = bodyCol;
+    ctx.beginPath();
+    ctx.roundRect(sx+s*0.22, sy+s*0.36-b*2, s*0.56, s*0.34, s*0.06);
+    ctx.fill();
+    // Arms
+    ctx.fillStyle = bodyCol;
+    ctx.fillRect(sx+s*0.14, sy+s*0.4-b*2, s*0.1, s*0.2);
+    ctx.fillRect(sx+s*0.76, sy+s*0.4-b*2, s*0.1, s*0.2);
+    // Hands
+    ctx.fillStyle = '#FFD5B5';
+    ctx.beginPath();
+    ctx.arc(sx+s*0.19, sy+s*0.6-b*2, s*0.05, 0, Math.PI*2);
+    ctx.arc(sx+s*0.81, sy+s*0.6-b*2, s*0.05, 0, Math.PI*2);
+    ctx.fill();
+    // Head
+    ctx.fillStyle = '#FFD5B5';
+    ctx.beginPath();
+    ctx.arc(sx+s/2, sy+s*0.26-b*2, s*0.19, 0, Math.PI*2);
+    ctx.fill();
+    // Hair
+    ctx.fillStyle = hairCol;
+    ctx.beginPath();
+    ctx.arc(sx+s/2, sy+s*0.22-b*2, s*0.2, Math.PI*0.9, Math.PI*2.1);
+    ctx.fill();
+    ctx.fillRect(sx+s*0.3, sy+s*0.1-b*2, s*0.4, s*0.1);
+    // Eyes
+    if (dir !== 'up') {
+        ctx.fillStyle = '#3A2A1A';
+        const ex = dir==='left'?-0.04:dir==='right'?0.04:0;
+        ctx.beginPath();
+        ctx.arc(sx+s*0.4+ex*s, sy+s*0.27-b*2, s*0.035, 0, Math.PI*2);
+        ctx.arc(sx+s*0.6+ex*s, sy+s*0.27-b*2, s*0.035, 0, Math.PI*2);
+        ctx.fill();
+    }
+    // Blush
+    ctx.fillStyle = 'rgba(255,150,150,0.35)';
+    ctx.beginPath();
+    ctx.ellipse(sx+s*0.34, sy+s*0.32-b*2, s*0.06, s*0.03, 0, 0, Math.PI*2);
+    ctx.ellipse(sx+s*0.66, sy+s*0.32-b*2, s*0.06, s*0.03, 0, 0, Math.PI*2);
+    ctx.fill();
+};
+
+G.drawTree = function(ctx, sx, sy, s, season, variant) {
+    const v = (variant||0)*0.1;
+    const sc = DATA.SEASON_COLORS[season]||DATA.SEASON_COLORS.printemps;
+    // Trunk
+    ctx.fillStyle = '#6B4423';
+    ctx.fillRect(sx+s*0.4, sy+s*0.5, s*0.2, s*0.4);
+    // Canopy
+    ctx.fillStyle = sc.tree;
+    ctx.beginPath();
+    ctx.arc(sx+s*0.5, sy+s*0.32+v, s*0.34, 0, Math.PI*2);
+    ctx.fill();
+    // Highlight
+    ctx.fillStyle = 'rgba(255,255,255,0.15)';
+    ctx.beginPath();
+    ctx.arc(sx+s*0.42, sy+s*0.24+v, s*0.14, 0, Math.PI*2);
+    ctx.fill();
+    // Fruits in season
+    if (season==='ete'||season==='automne') {
+        ctx.fillStyle = season==='ete'?'#FF4444':'#FF8800';
+        for (let i=0;i<3;i++) {
+            const fx=sx+s*(0.32+G.hash(sx+i,sy)*0.36);
+            const fy=sy+s*(0.2+G.hash(sy+i,sx)*0.25);
+            ctx.beginPath(); ctx.arc(fx,fy,s*0.04,0,Math.PI*2); ctx.fill();
+        }
+    }
+};
+
+G.drawBush = function(ctx, sx, sy, s, season) {
+    const sc = DATA.SEASON_COLORS[season]||DATA.SEASON_COLORS.printemps;
+    ctx.fillStyle = sc.tree;
+    ctx.beginPath();
+    ctx.ellipse(sx+s*0.5, sy+s*0.6, s*0.35, s*0.25, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.1)';
+    ctx.beginPath();
+    ctx.ellipse(sx+s*0.4, sy+s*0.5, s*0.15, s*0.12, 0, 0, Math.PI*2);
+    ctx.fill();
+};
+
+G.drawFlower = function(ctx, sx, sy, s, colorIdx) {
+    const col = DATA.FLOWER_COLORS[colorIdx%DATA.FLOWER_COLORS.length];
+    // Stem
+    ctx.fillStyle = '#4CAF50';
+    ctx.fillRect(sx+s*0.47, sy+s*0.5, s*0.06, s*0.35);
+    // Petals
+    ctx.fillStyle = col;
+    for (let i=0; i<5; i++) {
+        const a = (i/5)*Math.PI*2;
+        ctx.beginPath();
+        ctx.arc(sx+s*0.5+Math.cos(a)*s*0.1, sy+s*0.42+Math.sin(a)*s*0.1, s*0.07, 0, Math.PI*2);
+        ctx.fill();
+    }
+    // Center
+    ctx.fillStyle = '#FFD700';
+    ctx.beginPath(); ctx.arc(sx+s*0.5, sy+s*0.42, s*0.06, 0, Math.PI*2); ctx.fill();
+};
+
+G.drawWater = function(ctx, sx, sy, s, deep, time) {
+    ctx.fillStyle = deep ? '#3A7BBF' : '#5B9BD5';
+    ctx.fillRect(sx, sy, s, s);
+    // Animated ripples
+    ctx.fillStyle = 'rgba(255,255,255,0.15)';
+    const off = Math.sin(time*2 + sx*0.1)*s*0.3;
+    ctx.fillRect(sx+off, sy+s*0.3, s*0.3, s*0.06);
+    ctx.fillRect(sx+s*0.5-off*0.5, sy+s*0.7, s*0.25, s*0.06);
+};
+
+G.drawAnimal = function(ctx, sx, sy, s, type, frame) {
+    const data = DATA.WILDLIFE[type];
+    if (!data) return;
+    const sz = s * (data.size||0.5);
+    const cx = sx+s/2, cy = sy+s/2;
+    const col = data.color;
+
+    ctx.fillStyle = 'rgba(0,0,0,0.1)';
+    ctx.beginPath();
+    ctx.ellipse(cx, cy+sz*0.45, sz*0.3, sz*0.08, 0, 0, Math.PI*2);
+    ctx.fill();
+
+    switch(type) {
+        case 'cerf': case 'biche':
+            // Body
+            ctx.fillStyle = col;
+            ctx.beginPath();
+            ctx.ellipse(cx, cy, sz*0.35, sz*0.22, 0, 0, Math.PI*2);
+            ctx.fill();
+            // Head
+            ctx.beginPath();
+            ctx.arc(cx+sz*0.3, cy-sz*0.15, sz*0.13, 0, Math.PI*2);
+            ctx.fill();
+            // Legs
+            ctx.fillRect(cx-sz*0.2, cy+sz*0.15, sz*0.06, sz*0.25);
+            ctx.fillRect(cx+sz*0.1, cy+sz*0.15, sz*0.06, sz*0.25);
+            // Antlers for cerf
+            if (type==='cerf') {
+                ctx.strokeStyle = '#8B6E4E'; ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(cx+sz*0.3, cy-sz*0.25);
+                ctx.lineTo(cx+sz*0.35, cy-sz*0.45);
+                ctx.lineTo(cx+sz*0.45, cy-sz*0.4);
+                ctx.moveTo(cx+sz*0.25, cy-sz*0.25);
+                ctx.lineTo(cx+sz*0.2, cy-sz*0.42);
+                ctx.lineTo(cx+sz*0.12, cy-sz*0.38);
+                ctx.stroke();
+            }
+            break;
+        case 'lapin':
+            ctx.fillStyle = col;
+            ctx.beginPath();
+            ctx.ellipse(cx, cy+sz*0.1, sz*0.2, sz*0.18, 0, 0, Math.PI*2);
+            ctx.fill();
+            // Ears
+            ctx.beginPath();
+            ctx.ellipse(cx-sz*0.08, cy-sz*0.2, sz*0.05, sz*0.15, -0.2, 0, Math.PI*2);
+            ctx.ellipse(cx+sz*0.08, cy-sz*0.2, sz*0.05, sz*0.15, 0.2, 0, Math.PI*2);
+            ctx.fill();
+            // Tail
+            ctx.fillStyle = '#FFFFFF';
+            ctx.beginPath(); ctx.arc(cx-sz*0.18, cy+sz*0.1, sz*0.06, 0, Math.PI*2); ctx.fill();
+            break;
+        case 'renard':
+            ctx.fillStyle = col;
+            ctx.beginPath();
+            ctx.ellipse(cx, cy, sz*0.3, sz*0.18, 0, 0, Math.PI*2);
+            ctx.fill();
+            // Head
+            ctx.beginPath(); ctx.arc(cx+sz*0.25, cy-sz*0.08, sz*0.12, 0, Math.PI*2); ctx.fill();
+            // Ears
+            ctx.beginPath();
+            ctx.moveTo(cx+sz*0.2, cy-sz*0.18);
+            ctx.lineTo(cx+sz*0.15, cy-sz*0.35);
+            ctx.lineTo(cx+sz*0.28, cy-sz*0.2);
+            ctx.fill();
+            // Tail
+            ctx.fillStyle = '#FFFFFF';
+            ctx.beginPath();
+            ctx.ellipse(cx-sz*0.35, cy+sz*0.05, sz*0.15, sz*0.07, -0.3, 0, Math.PI*2);
+            ctx.fill();
+            ctx.fillStyle = col;
+            ctx.beginPath();
+            ctx.ellipse(cx-sz*0.3, cy+sz*0.03, sz*0.12, sz*0.06, -0.3, 0, Math.PI*2);
+            ctx.fill();
+            break;
+        case 'ecureuil':
+            ctx.fillStyle = col;
+            ctx.beginPath(); ctx.arc(cx, cy, sz*0.15, 0, Math.PI*2); ctx.fill();
+            // Tail (big fluffy)
+            ctx.beginPath();
+            ctx.ellipse(cx-sz*0.15, cy-sz*0.15, sz*0.18, sz*0.1, -0.8, 0, Math.PI*2);
+            ctx.fill();
+            break;
+        case 'canard':
+            ctx.fillStyle = col;
+            ctx.beginPath(); ctx.ellipse(cx, cy+sz*0.05, sz*0.18, sz*0.14, 0, 0, Math.PI*2); ctx.fill();
+            // Head
+            ctx.fillStyle = '#226633';
+            ctx.beginPath(); ctx.arc(cx+sz*0.15, cy-sz*0.1, sz*0.09, 0, Math.PI*2); ctx.fill();
+            // Beak
+            ctx.fillStyle = '#FFAA00';
+            ctx.beginPath();
+            ctx.moveTo(cx+sz*0.24, cy-sz*0.08);
+            ctx.lineTo(cx+sz*0.38, cy-sz*0.06);
+            ctx.lineTo(cx+sz*0.24, cy-sz*0.02);
+            ctx.fill();
+            break;
+        case 'papillon':
+            const bf = Math.sin(frame*10)*0.3;
+            ctx.fillStyle = col;
+            ctx.beginPath();
+            ctx.ellipse(cx-sz*0.1, cy, sz*0.12, sz*0.08*(1+bf), -0.3, 0, Math.PI*2);
+            ctx.ellipse(cx+sz*0.1, cy, sz*0.12, sz*0.08*(1+bf), 0.3, 0, Math.PI*2);
+            ctx.fill();
+            ctx.fillStyle = '#333';
+            ctx.fillRect(cx-sz*0.02, cy-sz*0.1, sz*0.04, sz*0.2);
+            break;
+        case 'herisson':
+            ctx.fillStyle = '#887755';
+            ctx.beginPath(); ctx.ellipse(cx, cy+sz*0.05, sz*0.2, sz*0.14, 0, 0, Math.PI*2); ctx.fill();
+            // Spikes
+            ctx.fillStyle = '#665544';
+            for (let i=0;i<6;i++) {
+                const a = Math.PI+i*0.35-0.9;
+                ctx.beginPath();
+                ctx.moveTo(cx+Math.cos(a)*sz*0.15, cy+Math.sin(a)*sz*0.1);
+                ctx.lineTo(cx+Math.cos(a)*sz*0.28, cy+Math.sin(a)*sz*0.2);
+                ctx.lineTo(cx+Math.cos(a+0.2)*sz*0.15, cy+Math.sin(a+0.2)*sz*0.1);
+                ctx.fill();
+            }
+            break;
+        default:
+            ctx.fillStyle = col;
+            ctx.beginPath(); ctx.arc(cx, cy, sz*0.15, 0, Math.PI*2); ctx.fill();
+    }
+    // Eyes (small dot for all)
+    ctx.fillStyle = '#222';
+    ctx.beginPath();
+    if (type==='cerf'||type==='biche') ctx.arc(cx+sz*0.33,cy-sz*0.15,sz*0.025,0,Math.PI*2);
+    else if (type==='renard') ctx.arc(cx+sz*0.28,cy-sz*0.1,sz*0.025,0,Math.PI*2);
+    else if (type==='canard') ctx.arc(cx+sz*0.18,cy-sz*0.12,sz*0.025,0,Math.PI*2);
+    else ctx.arc(cx+sz*0.06,cy-sz*0.02,sz*0.025,0,Math.PI*2);
+    ctx.fill();
+};
+
+G.drawCrop = function(ctx, sx, sy, s, cropKey, stage) {
+    const crop = DATA.CROPS[cropKey];
+    if (!crop) return;
+    const col = crop.icon;
+    switch(stage) {
+        case 1: // seme
+            ctx.fillStyle = '#6B4423';
+            ctx.beginPath(); ctx.arc(sx+s*0.5,sy+s*0.7,s*0.06,0,Math.PI*2); ctx.fill();
+            break;
+        case 2: // pousse
+            ctx.fillStyle = '#4CAF50';
+            ctx.fillRect(sx+s*0.47,sy+s*0.5,s*0.06,s*0.3);
+            ctx.beginPath(); ctx.arc(sx+s*0.5,sy+s*0.48,s*0.06,0,Math.PI*2); ctx.fill();
+            break;
+        case 3: // grandit
+            ctx.fillStyle = '#4CAF50';
+            ctx.fillRect(sx+s*0.47,sy+s*0.35,s*0.06,s*0.45);
+            ctx.beginPath(); ctx.arc(sx+s*0.5,sy+s*0.32,s*0.1,0,Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(sx+s*0.38,sy+s*0.45,s*0.06,0,Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(sx+s*0.62,sy+s*0.45,s*0.06,0,Math.PI*2); ctx.fill();
+            break;
+        case 4: // floraison
+            ctx.fillStyle = '#4CAF50';
+            ctx.fillRect(sx+s*0.47,sy+s*0.25,s*0.06,s*0.55);
+            ctx.beginPath(); ctx.arc(sx+s*0.5,sy+s*0.22,s*0.12,0,Math.PI*2); ctx.fill();
+            ctx.fillStyle = col;
+            ctx.beginPath(); ctx.arc(sx+s*0.5,sy+s*0.2,s*0.06,0,Math.PI*2); ctx.fill();
+            break;
+        case 5: // pret
+            ctx.fillStyle = '#4CAF50';
+            ctx.fillRect(sx+s*0.47,sy+s*0.2,s*0.06,s*0.6);
+            ctx.beginPath(); ctx.arc(sx+s*0.5,sy+s*0.18,s*0.13,0,Math.PI*2); ctx.fill();
+            ctx.fillStyle = col;
+            ctx.globalAlpha = 0.9;
+            ctx.beginPath(); ctx.arc(sx+s*0.5,sy+s*0.16,s*0.1,0,Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(sx+s*0.38,sy+s*0.3,s*0.06,0,Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(sx+s*0.62,sy+s*0.3,s*0.06,0,Math.PI*2); ctx.fill();
+            ctx.globalAlpha = 1;
+            // Sparkle
+            ctx.fillStyle = '#FFFFFF';
+            const sp = Math.sin(G.animTime*5)*s*0.02;
+            ctx.beginPath(); ctx.arc(sx+s*0.6,sy+s*0.12+sp,s*0.025,0,Math.PI*2); ctx.fill();
+            break;
+    }
+};
+
+G.drawBuildingSprite = function(ctx, sx, sy, s, type) {
+    switch(type) {
+        case 'bike_path':
+            ctx.fillStyle = '#A0C8A0';
+            ctx.fillRect(sx+s*0.1, sy+s*0.3, s*0.8, s*0.4);
+            ctx.strokeStyle='#FFF'; ctx.lineWidth=1; ctx.setLineDash([3,3]);
+            ctx.beginPath(); ctx.moveTo(sx+s*0.1,sy+s/2); ctx.lineTo(sx+s*0.9,sy+s/2); ctx.stroke();
+            ctx.setLineDash([]);
+            break;
+        case 'bench':
+            ctx.fillStyle = '#8B6E4E';
+            ctx.fillRect(sx+s*0.15,sy+s*0.55,s*0.7,s*0.08);
+            ctx.fillRect(sx+s*0.2,sy+s*0.63,s*0.06,s*0.2);
+            ctx.fillRect(sx+s*0.74,sy+s*0.63,s*0.06,s*0.2);
+            ctx.fillRect(sx+s*0.15,sy+s*0.4,s*0.7,s*0.06);
+            break;
+        case 'garden':
+            for (let i=0;i<4;i++) {
+                ctx.fillStyle = DATA.FLOWER_COLORS[i*2];
+                ctx.beginPath();
+                ctx.arc(sx+s*0.25+i%2*s*0.4, sy+s*0.35+Math.floor(i/2)*s*0.3, s*0.1, 0, Math.PI*2);
+                ctx.fill();
+            }
+            ctx.fillStyle = '#4CAF50';
+            ctx.fillRect(sx+s*0.1,sy+s*0.7,s*0.8,s*0.15);
+            break;
+        case 'guesthouse':
+            ctx.fillStyle = '#F5E6D3'; ctx.fillRect(sx+s*0.15,sy+s*0.35,s*0.7,s*0.5);
+            ctx.fillStyle = '#C65D3E';
+            ctx.beginPath(); ctx.moveTo(sx+s*0.1,sy+s*0.38); ctx.lineTo(sx+s*0.5,sy+s*0.12); ctx.lineTo(sx+s*0.9,sy+s*0.38); ctx.fill();
+            ctx.fillStyle = '#8B6E4E'; ctx.fillRect(sx+s*0.4,sy+s*0.6,s*0.2,s*0.25);
+            ctx.fillStyle = '#87CEEB';
+            ctx.fillRect(sx+s*0.2,sy+s*0.45,s*0.12,s*0.12);
+            ctx.fillRect(sx+s*0.68,sy+s*0.45,s*0.12,s*0.12);
+            break;
+        case 'bakery':
+            ctx.fillStyle = '#F5E6D3'; ctx.fillRect(sx+s*0.15,sy+s*0.35,s*0.7,s*0.5);
+            ctx.fillStyle = '#E8C850';
+            ctx.beginPath(); ctx.moveTo(sx+s*0.1,sy+s*0.38); ctx.lineTo(sx+s*0.5,sy+s*0.12); ctx.lineTo(sx+s*0.9,sy+s*0.38); ctx.fill();
+            ctx.fillStyle = '#8B6E4E'; ctx.fillRect(sx+s*0.4,sy+s*0.6,s*0.2,s*0.25);
+            // Smoke
+            ctx.fillStyle = 'rgba(200,200,200,0.5)';
+            const smoke = Math.sin(G.animTime*2)*s*0.05;
+            ctx.beginPath(); ctx.arc(sx+s*0.7,sy+s*0.1+smoke,s*0.06,0,Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(sx+s*0.72,sy-smoke,s*0.04,0,Math.PI*2); ctx.fill();
+            break;
+        case 'library':
+            ctx.fillStyle = '#E8D5C0'; ctx.fillRect(sx+s*0.15,sy+s*0.35,s*0.7,s*0.5);
+            ctx.fillStyle = '#4A6FA5';
+            ctx.beginPath(); ctx.moveTo(sx+s*0.1,sy+s*0.38); ctx.lineTo(sx+s*0.5,sy+s*0.12); ctx.lineTo(sx+s*0.9,sy+s*0.38); ctx.fill();
+            ctx.fillStyle = '#8B6E4E'; ctx.fillRect(sx+s*0.38,sy+s*0.55,s*0.24,s*0.3);
+            break;
+        case 'duck_pond':
+            ctx.fillStyle = '#5B9BD5';
+            ctx.beginPath(); ctx.ellipse(sx+s/2,sy+s*0.55,s*0.4,s*0.25,0,0,Math.PI*2); ctx.fill();
+            ctx.fillStyle = 'rgba(255,255,255,0.2)';
+            ctx.beginPath(); ctx.ellipse(sx+s*0.4,sy+s*0.5,s*0.12,s*0.06,0,0,Math.PI*2); ctx.fill();
+            break;
+        case 'windmill':
+            ctx.fillStyle = '#F5E6D3'; ctx.fillRect(sx+s*0.3,sy+s*0.3,s*0.4,s*0.55);
+            ctx.fillStyle = '#C65D3E';
+            ctx.beginPath(); ctx.moveTo(sx+s*0.25,sy+s*0.33); ctx.lineTo(sx+s*0.5,sy+s*0.15); ctx.lineTo(sx+s*0.75,sy+s*0.33); ctx.fill();
+            // Blades
+            ctx.strokeStyle = '#8B6E4E'; ctx.lineWidth = 2;
+            const a = G.animTime*1.5;
+            for (let i=0;i<4;i++) {
+                const ba = a+i*Math.PI/2;
+                ctx.beginPath();
+                ctx.moveTo(sx+s*0.5,sy+s*0.3);
+                ctx.lineTo(sx+s*0.5+Math.cos(ba)*s*0.3, sy+s*0.3+Math.sin(ba)*s*0.25);
+                ctx.stroke();
+            }
+            break;
+        case 'fountain':
+            ctx.fillStyle = '#A0A0A0';
+            ctx.beginPath(); ctx.ellipse(sx+s/2,sy+s*0.6,s*0.35,s*0.15,0,0,Math.PI*2); ctx.fill();
+            ctx.fillStyle = '#5B9BD5';
+            ctx.beginPath(); ctx.ellipse(sx+s/2,sy+s*0.58,s*0.28,s*0.1,0,0,Math.PI*2); ctx.fill();
+            // Water jet
+            ctx.fillStyle = 'rgba(91,155,213,0.6)';
+            const jh = Math.sin(G.animTime*3)*s*0.05;
+            ctx.beginPath(); ctx.arc(sx+s/2,sy+s*0.35+jh,s*0.04,0,Math.PI*2); ctx.fill();
+            ctx.fillRect(sx+s*0.48,sy+s*0.35+jh,s*0.04,s*0.2);
+            break;
+        case 'flowerbed':
+            for (let i=0;i<6;i++) {
+                ctx.fillStyle = DATA.FLOWER_COLORS[(i*3)%DATA.FLOWER_COLORS.length];
+                ctx.beginPath();
+                ctx.arc(sx+s*(0.15+i*0.13), sy+s*(0.4+Math.sin(i)*0.15), s*0.08, 0, Math.PI*2);
+                ctx.fill();
+            }
+            ctx.fillStyle = '#4CAF50';
+            ctx.fillRect(sx+s*0.05,sy+s*0.7,s*0.9,s*0.1);
+            break;
+    }
+};
+
+// --- Main rendering ---
+G.renderTitleScreen = function() {
+    const ctx = G.ctx, w = G.W, h = G.H, t = G.animTime;
+    // Sky
+    const grd = ctx.createLinearGradient(0,0,0,h);
+    grd.addColorStop(0,'#87CEEB'); grd.addColorStop(0.6,'#B8E6B8'); grd.addColorStop(1,'#7EC850');
+    ctx.fillStyle = grd; ctx.fillRect(0,0,w,h);
+    // Hills
+    ctx.fillStyle = '#6AAF3D';
+    ctx.beginPath(); ctx.moveTo(0,h*0.55);
+    for (let x=0;x<=w;x+=20) ctx.lineTo(x, h*0.55+Math.sin(x*0.008+1)*40+Math.sin(x*0.015)*20);
+    ctx.lineTo(w,h); ctx.lineTo(0,h); ctx.fill();
+    ctx.fillStyle = '#5DA832';
+    ctx.beginPath(); ctx.moveTo(0,h*0.65);
+    for (let x=0;x<=w;x+=20) ctx.lineTo(x, h*0.65+Math.sin(x*0.01+2)*30+Math.sin(x*0.02)*15);
+    ctx.lineTo(w,h); ctx.lineTo(0,h); ctx.fill();
+    // Trees
+    for (let i=0;i<12;i++) {
+        const tx = i*85+20, ty = h*0.5+Math.sin(i*1.5)*30+20;
+        G.drawTree(ctx, tx, ty, 48, 'printemps', i);
+    }
+    // Animated animals
+    const bx = (Math.sin(t*0.3)*200+w/2)|0;
+    G.drawAnimal(ctx, bx, h*0.62, 40, 'lapin', t);
+    G.drawAnimal(ctx, w*0.7, h*0.55, 50, 'cerf', t);
+    G.drawAnimal(ctx, (Math.sin(t*0.5)*100+300)|0, h*0.7, 35, 'papillon', t);
+    // Floating particles
+    for (let i=0;i<15;i++) {
+        ctx.fillStyle = `rgba(255,255,255,${0.3+Math.sin(t+i)*0.2})`;
+        const px = (Math.sin(t*0.3+i*2)*w*0.4+w/2)|0;
+        const py = (Math.sin(t*0.5+i*3)*h*0.2+h*0.3)|0;
+        ctx.beginPath(); ctx.arc(px,py,2,0,Math.PI*2); ctx.fill();
+    }
+    // Title
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillStyle='rgba(0,0,0,0.15)';
+    ctx.font='bold 52px "Segoe UI", sans-serif';
+    ctx.fillText('Les Huit Communes', w/2+3, h*0.2+3);
+    ctx.fillStyle='#F5E6D3';
+    ctx.font='bold 50px "Segoe UI", sans-serif';
+    ctx.fillText('Les Huit Communes', w/2, h*0.2);
+    ctx.fillStyle='#E8D5C0';
+    ctx.font='22px "Segoe UI", sans-serif';
+    ctx.fillText('~ Athis-Val-de-Rouvre ~', w/2, h*0.2+45);
+    // Menu options
+    const opts = ['Nouvelle Partie'];
+    if (G.hasSave()) opts.push('Continuer');
+    for (let i=0;i<opts.length;i++) {
+        const oy = h*0.4+i*55;
+        const hover = G.mouse.y>oy-20 && G.mouse.y<oy+20 && G.mouse.x>w/2-120 && G.mouse.x<w/2+120;
+        ctx.fillStyle = hover ? 'rgba(42,31,20,0.9)' : 'rgba(42,31,20,0.75)';
+        ctx.beginPath(); ctx.roundRect(w/2-120,oy-22,240,44,8); ctx.fill();
+        ctx.strokeStyle='#C4A882'; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.roundRect(w/2-120,oy-22,240,44,8); ctx.stroke();
+        ctx.fillStyle='#F5E6D3';
+        ctx.font = hover ? 'bold 20px "Segoe UI", sans-serif' : '20px "Segoe UI", sans-serif';
+        ctx.fillText(opts[i], w/2, oy);
+    }
+    // Footer
+    ctx.fillStyle='rgba(245,230,211,0.5)';
+    ctx.font='13px "Segoe UI", sans-serif';
+    ctx.fillText('Un jeu cozy dans la campagne normande', w/2, h*0.92);
+    ctx.textAlign='left';
+};
+
+G.renderGame = function() {
+    const ctx=G.ctx, s=G.state, T=DATA.TILES, ts=G.TILE;
+    const cam = s.camera || {x:0,y:0};
+    const season = s.season;
+    const sc = DATA.SEASON_COLORS[season];
+
+    // Sky tint
+    ctx.fillStyle = sc.sky;
+    ctx.fillRect(0,0,G.W,G.H);
+
+    // Visible range
+    const startX = Math.floor(cam.x/ts);
+    const startY = Math.floor(cam.y/ts);
+    const endX = startX + Math.ceil(G.W/ts) + 1;
+    const endY = startY + Math.ceil(G.H/ts) + 1;
+    const offX = -(cam.x % ts);
+    const offY = -(cam.y % ts);
+
+    // --- Draw ground tiles ---
+    for (let ty=startY; ty<=endY; ty++) {
+        for (let tx=startX; tx<=endX; tx++) {
+            if (tx<0||tx>=DATA.MAP_W||ty<0||ty>=DATA.MAP_H) continue;
+            const tile = s.map[ty][tx];
+            const sx = (tx-startX)*ts+offX;
+            const sy = (ty-startY)*ts+offY;
+            const colors = DATA.TILE_COLORS[tile];
+
+            if (tile===T.WATER || tile===T.DEEP_WATER) {
+                G.drawWater(ctx, sx, sy, ts, tile===T.DEEP_WATER, G.animTime+tx*0.5);
+                continue;
+            }
+
+            // Base color with variation
+            if (colors) {
+                const ci = (G.hash(tx,ty)*3)|0;
+                ctx.fillStyle = colors[G.clamp(ci,0,2)];
+            } else {
+                ctx.fillStyle = '#7EC850';
+            }
+            ctx.fillRect(sx, sy, ts, ts);
+
+            // Grass variation for green tiles
+            if (tile===T.GRASS || tile===T.TALL_GRASS) {
+                const gc = season==='hiver' ? '#B8C8B8' : sc.grass;
+                ctx.fillStyle = gc;
+                if (G.hash(tx*7,ty*13)>0.7) {
+                    ctx.fillRect(sx+ts*0.2, sy+ts*0.6, 2, ts*0.2);
+                    ctx.fillRect(sx+ts*0.7, sy+ts*0.4, 2, ts*0.25);
+                }
+            }
+
+            // Special decorations
+            if (tile===T.FLOWERS) {
+                const fi = (G.hash(tx+5,ty+5)*8)|0;
+                G.drawFlower(ctx, sx, sy, ts, fi);
+            }
+            if (tile===T.GARDEN_SOIL) {
+                // Furrows
+                ctx.fillStyle='#7D5F35';
+                for (let r=0;r<3;r++) ctx.fillRect(sx+2,sy+r*ts*0.33+4,ts-4,2);
+            }
+            if (tile===T.SIGN) {
+                ctx.fillStyle='#8B6E4E';
+                ctx.fillRect(sx+ts*0.45,sy+ts*0.3,ts*0.1,ts*0.55);
+                ctx.fillRect(sx+ts*0.2,sy+ts*0.2,ts*0.6,ts*0.25);
+                ctx.fillStyle='#F5E6D3';
+                ctx.font='7px sans-serif'; ctx.textAlign='center';
+                const cn = G.getCommuneName(tx,ty);
+                ctx.fillText(cn.substring(0,8), sx+ts/2, sy+ts*0.38);
+                ctx.textAlign='left';
+            }
+            if (tile===T.WELL) {
+                ctx.fillStyle='#909090';
+                ctx.beginPath(); ctx.ellipse(sx+ts/2,sy+ts*0.6,ts*0.35,ts*0.18,0,0,Math.PI*2); ctx.fill();
+                ctx.fillStyle='#5B9BD5';
+                ctx.beginPath(); ctx.ellipse(sx+ts/2,sy+ts*0.58,ts*0.25,ts*0.1,0,0,Math.PI*2); ctx.fill();
+                ctx.fillStyle='#8B6E4E';
+                ctx.fillRect(sx+ts*0.2,sy+ts*0.15,ts*0.05,ts*0.5);
+                ctx.fillRect(sx+ts*0.75,sy+ts*0.15,ts*0.05,ts*0.5);
+                ctx.fillRect(sx+ts*0.2,sy+ts*0.15,ts*0.6,ts*0.05);
+            }
+            if (tile===T.BRIDGE) {
+                ctx.fillStyle='#B8956A';
+                ctx.fillRect(sx,sy,ts,ts);
+                ctx.fillStyle='#A08560';
+                ctx.fillRect(sx,sy,ts,3); ctx.fillRect(sx,sy+ts-3,ts,3);
+            }
+            if (tile===T.BENCH) {
+                G.drawBuildingSprite(ctx,sx,sy,ts,'bench');
+            }
+            if (tile===T.CHAPEL) {
+                ctx.fillStyle='#D0C0A0'; ctx.fillRect(sx+ts*0.2,sy+ts*0.3,ts*0.6,ts*0.55);
+                ctx.fillStyle='#8B6E4E';
+                ctx.beginPath(); ctx.moveTo(sx+ts*0.15,sy+ts*0.33); ctx.lineTo(sx+ts*0.5,sy+ts*0.1); ctx.lineTo(sx+ts*0.85,sy+ts*0.33); ctx.fill();
+                ctx.fillStyle='#FFD700';
+                ctx.beginPath(); ctx.moveTo(sx+ts*0.48,sy+ts*0.02); ctx.lineTo(sx+ts*0.52,sy+ts*0.02); ctx.lineTo(sx+ts*0.52,sy+ts*0.12); ctx.lineTo(sx+ts*0.56,sy+ts*0.08); ctx.lineTo(sx+ts*0.56,sy+ts*0.12); ctx.lineTo(sx+ts*0.44,sy+ts*0.12); ctx.lineTo(sx+ts*0.44,sy+ts*0.08); ctx.lineTo(sx+ts*0.48,sy+ts*0.12); ctx.closePath(); ctx.fill();
+            }
+            if (tile===T.BIKE_PATH) {
+                G.drawBuildingSprite(ctx,sx,sy,ts,'bike_path');
+            }
+        }
+    }
+
+    // --- Draw trees/bushes (separate pass for depth) ---
+    for (let ty=startY; ty<=endY; ty++) {
+        for (let tx=startX; tx<=endX; tx++) {
+            if (tx<0||tx>=DATA.MAP_W||ty<0||ty>=DATA.MAP_H) continue;
+            const tile = s.map[ty][tx];
+            const sx = (tx-startX)*ts+offX;
+            const sy = (ty-startY)*ts+offY;
+            if (tile===T.TREE||tile===T.DENSE_TREE) {
+                const sway = Math.sin(G.animTime*1.5+tx+ty)*1.5;
+                G.drawTree(ctx, sx+sway, sy-ts*0.3, ts*1.1, season, (tx*7+ty*13)%10);
+            }
+            if (tile===T.BUSH) G.drawBush(ctx, sx, sy, ts, season);
+        }
+    }
+
+    // --- Draw garden crops + indicator ---
+    if (s.garden && s.garden.plots) {
+        const playerNearGarden = s.garden.plots.some(p =>
+            Math.abs(p.x-s.player.x)<=2 && Math.abs(p.y-s.player.y)<=2);
+        const playerOnGarden = s.garden.plots.some(p =>
+            p.x===s.player.x && p.y===s.player.y);
+        for (const p of s.garden.plots) {
+            if (p.x<startX||p.x>endX||p.y<startY||p.y>endY) continue;
+            const sx = (p.x-startX)*ts+offX;
+            const sy = (p.y-startY)*ts+offY;
+            // Bordure pulsante quand le joueur est proche
+            if (playerNearGarden) {
+                const pulse = 0.3 + Math.sin(G.animTime*3)*0.15;
+                ctx.strokeStyle = `rgba(126,200,80,${pulse})`;
+                ctx.lineWidth = 2;
+                ctx.strokeRect(sx+1,sy+1,ts-2,ts-2);
+            }
+            if (p.crop && p.stage > 0) {
+                G.drawCrop(ctx, sx, sy, ts, p.crop, p.stage);
+            }
+            // Water count indicator
+            if (p.crop && p.stage>0 && p.stage<5) {
+                const crop = DATA.CROPS[p.crop];
+                const needed = crop?(crop.waterPerStage||1):1;
+                const wc = p.waterCount||0;
+                for (let d=0;d<needed;d++) {
+                    ctx.fillStyle = d<wc ? 'rgba(91,155,213,0.7)' : 'rgba(91,155,213,0.2)';
+                    ctx.beginPath(); ctx.arc(sx+8+d*8,sy+ts-6,3,0,Math.PI*2); ctx.fill();
+                }
+            }
+        }
+        // Texte indicateur au-dessus du potager
+        if (playerNearGarden && !playerOnGarden) {
+            const gp = s.garden.plots[0];
+            const gsx = (gp.x-startX)*ts+offX;
+            const gsy = (gp.y-startY)*ts+offY;
+            ctx.fillStyle='rgba(42,31,20,0.8)';
+            ctx.beginPath(); ctx.roundRect(gsx-10,gsy-28,130,22,4); ctx.fill();
+            ctx.fillStyle='#7EC850'; ctx.font='bold 12px sans-serif';
+            ctx.fillText('Potager [marchez dessus]', gsx-5, gsy-13);
+        }
+        if (playerOnGarden) {
+            const gsx = (s.player.x-startX)*ts+offX;
+            const gsy = (s.player.y-startY)*ts+offY;
+            ctx.fillStyle='rgba(42,31,20,0.8)';
+            ctx.beginPath(); ctx.roundRect(gsx-20,gsy-28,120,22,4); ctx.fill();
+            ctx.fillStyle='#FFD700'; ctx.font='bold 12px sans-serif';
+            ctx.fillText('[Espace] ou [G]', gsx-15, gsy-13);
+        }
+    }
+
+    // --- Draw placed buildings ---
+    for (const b of (s.placedBuildings||[])) {
+        if (b.x<startX-1||b.x>endX+1||b.y<startY-1||b.y>endY+1) continue;
+        const sx = (b.x-startX)*ts+offX;
+        const sy = (b.y-startY)*ts+offY;
+        G.drawBuildingSprite(ctx, sx, sy, ts, b.type);
+    }
+
+    // --- Draw resources ---
+    for (const r of (s.resources||[])) {
+        if (r.qty<=0) continue;
+        if (r.x<startX||r.x>endX||r.y<startY||r.y>endY) continue;
+        const sx = (r.x-startX)*ts+offX;
+        const sy = (r.y-startY)*ts+offY;
+        const item = DATA.ITEMS[r.item];
+        if (!item) continue;
+        // Sparkle
+        ctx.fillStyle = 'rgba(255,255,200,0.5)';
+        const sp = Math.sin(G.animTime*3+r.x+r.y);
+        ctx.beginPath(); ctx.arc(sx+ts/2+sp*3, sy+ts*0.3, 3, 0, Math.PI*2); ctx.fill();
+        // Item icon
+        ctx.fillStyle = item.icon;
+        ctx.beginPath(); ctx.arc(sx+ts/2, sy+ts*0.5, ts*0.2, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle='#FFF'; ctx.font='8px sans-serif'; ctx.textAlign='center';
+        ctx.fillText(r.item.substring(0,3), sx+ts/2, sy+ts*0.55);
+        ctx.textAlign='left';
+    }
+
+    // --- Draw wildlife ---
+    for (const w of (s.wildlife||[])) {
+        const wx = (w.x-cam.x/ts)*ts;
+        const wy = (w.y-cam.y/ts)*ts;
+        if (wx<-ts||wx>G.W+ts||wy<-ts||wy>G.H+ts) continue;
+        G.drawAnimal(ctx, wx, wy, ts, w.type, G.animTime);
+    }
+
+    // --- Draw NPCs ---
+    for (const npc of s.npcs) {
+        if (npc.x<startX-1||npc.x>endX+1||npc.y<startY-1||npc.y>endY+1) continue;
+        const sx = (npc.x-startX)*ts+offX;
+        const sy = (npc.y-startY)*ts+offY;
+        G.drawChar(ctx, sx, sy-4, ts, npc.color, npc.hair, 'down', 0);
+        // Name tag
+        ctx.fillStyle='rgba(42,31,20,0.75)';
+        ctx.font='9px sans-serif'; ctx.textAlign='center';
+        const nm = npc.name.split(' ')[0];
+        const tw = ctx.measureText(nm).width;
+        ctx.beginPath(); ctx.roundRect(sx+ts/2-tw/2-4, sy-14, tw+8, 14, 3); ctx.fill();
+        ctx.fillStyle='#F5E6D3';
+        ctx.fillText(nm, sx+ts/2, sy-5);
+        ctx.textAlign='left';
+        // Quest indicator
+        if (!npc.talked && npc.quest) {
+            ctx.fillStyle='#FFD700'; ctx.font='bold 14px sans-serif'; ctx.textAlign='center';
+            ctx.fillText('!', sx+ts/2, sy-18);
+            ctx.textAlign='left';
+        }
+    }
+
+    // --- Draw player ---
+    const px = (s.player.x-startX)*ts+offX;
+    const py = (s.player.y-startY)*ts+offY;
+    G.drawChar(ctx, px, py-6, ts, '#5B88C8', '#8B5E3C', s.player.dir, 0);
+
+    // --- Particles ---
+    for (const p of s.particles) {
+        ctx.globalAlpha = p.life;
+        ctx.fillStyle = p.color;
+        ctx.beginPath(); ctx.arc(p.sx, p.sy, p.size, 0, Math.PI*2); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+};
+
+G.renderDialogue = function() {
+    const ctx=G.ctx, d=G.state.ui.dialogue;
+    if (!d) return;
+    const bx=60, by=G.H-160, bw=G.W-120, bh=140;
+    // Box
+    ctx.fillStyle='rgba(42,31,20,0.92)';
+    ctx.beginPath(); ctx.roundRect(bx,by,bw,bh,10); ctx.fill();
+    ctx.strokeStyle='#C4A882'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.roundRect(bx,by,bw,bh,10); ctx.stroke();
+    // Name
+    ctx.fillStyle='#E8C850'; ctx.font='bold 16px "Segoe UI", sans-serif';
+    ctx.fillText(d.name, bx+20, by+28);
+    // Text
+    ctx.fillStyle='#F5E6D3'; ctx.font='15px "Segoe UI", sans-serif';
+    const line = d.lines[d.index]||'';
+    // Word wrap
+    const words = line.split(' ');
+    let ly = by+55, lx = bx+20, maxW = bw-40;
+    let currentLine = '';
+    for (const word of words) {
+        const test = currentLine + (currentLine?' ':'') + word;
+        if (ctx.measureText(test).width > maxW && currentLine) {
+            ctx.fillText(currentLine, lx, ly);
+            ly += 22; currentLine = word;
+        } else {
+            currentLine = test;
+        }
+    }
+    if (currentLine) ctx.fillText(currentLine, lx, ly);
+    // Continue indicator
+    ctx.fillStyle='rgba(245,230,211,0.5)';
+    ctx.font='12px sans-serif';
+    const ctxt = d.index < d.lines.length-1 ? '[Espace] Suivant...' : '[Espace] Fermer';
+    ctx.fillText(ctxt, bx+bw-160, by+bh-15);
+};
+
+G.renderMenu = function() {
+    const ctx=G.ctx, ui=G.state.ui, s=G.state;
+    if (!ui.menu) return;
+    const mx=100, my=60, mw=G.W-200, mh=G.H-120;
+    // Background overlay
+    ctx.fillStyle='rgba(0,0,0,0.5)';
+    ctx.fillRect(0,0,G.W,G.H);
+    // Menu box
+    ctx.fillStyle='rgba(42,31,20,0.95)';
+    ctx.beginPath(); ctx.roundRect(mx,my,mw,mh,12); ctx.fill();
+    ctx.strokeStyle='#C4A882'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.roundRect(mx,my,mw,mh,12); ctx.stroke();
+
+    ctx.textAlign='center';
+    let title='';
+    switch(ui.menu) {
+        case 'inventory': title='Inventaire'; break;
+        case 'quests': title='Quetes'; break;
+        case 'build': title='Construire'; break;
+        case 'garden': title='Potager'; break;
+        case 'map': title='Carte des Communes'; break;
+    }
+    ctx.fillStyle='#E8C850'; ctx.font='bold 22px "Segoe UI", sans-serif';
+    ctx.fillText(title, G.W/2, my+35);
+    ctx.textAlign='left';
+
+    const contentY = my+55, contentX = mx+25, contentW = mw-50;
+
+    if (ui.menu==='inventory') {
+        const items = Object.entries(s.inventory).filter(([k,v])=>v>0);
+        if (items.length===0) {
+            ctx.fillStyle='#C4A882'; ctx.font='15px sans-serif';
+            ctx.fillText('Votre inventaire est vide.', contentX, contentY+20);
+        }
+        const maxVisible = Math.floor((mh-100)/32);
+        const scroll = ui.inventoryScroll||0;
+        const visible = items.slice(scroll, scroll+maxVisible);
+        visible.forEach(([key,qty], vi) => {
+            const i = vi + scroll;
+            const item = DATA.ITEMS[key]||DATA.CROPS[key]||{name:key,icon:'#AAA'};
+            const iy = contentY+10+vi*32;
+            const sel = i===ui.menuIndex;
+            if (sel) { ctx.fillStyle='rgba(200,180,140,0.15)'; ctx.fillRect(contentX-5,iy-8,contentW,28); }
+            ctx.fillStyle=item.icon||'#AAA';
+            ctx.beginPath(); ctx.arc(contentX+12, iy+5, 8, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle='#F5E6D3'; ctx.font='15px sans-serif';
+            ctx.fillText(`${item.name||key}  x${qty}`, contentX+30, iy+9);
+        });
+        // Scroll indicators
+        if (scroll>0) { ctx.fillStyle='#C4A882'; ctx.font='12px sans-serif'; ctx.fillText('▲ ...', contentX, contentY); }
+        if (scroll+maxVisible<items.length) { ctx.fillStyle='#C4A882'; ctx.font='12px sans-serif'; ctx.fillText('▼ ...', contentX, my+mh-30); }
+        ctx.fillStyle='#C4A882'; ctx.font='11px sans-serif';
+        ctx.fillText(`${items.length} objet(s)  [Haut/Bas] Defiler  [Echap] Fermer`, contentX, my+mh-12);
+    }
+
+    if (ui.menu==='quests') {
+        if (s.feteActive) {
+            // Mode fete : n'afficher QUE la quete fete avec sous-conditions
+            const qd = DATA.QUESTS.find(x => x.id === 'fete');
+            const fq = s.quests.find(q => q.id === 'fete');
+            const done = fq && fq.status === 'completed';
+            const cond = G.checkFeteConditions ? G.checkFeteConditions() : { veggies: false, npcs: false };
+
+            const pulse = 0.4+Math.sin(G.animTime*2)*0.2;
+            ctx.fillStyle = done ? 'rgba(100,200,100,0.15)' : `rgba(255,215,0,${pulse})`;
+            ctx.fillRect(contentX-5,contentY+2,contentW,36);
+            if (!done) {
+                ctx.strokeStyle='#FFD700'; ctx.lineWidth=2;
+                ctx.strokeRect(contentX-5,contentY+2,contentW,36);
+            }
+            ctx.fillStyle = done ? '#88CC66' : '#FFD700';
+            ctx.font='bold 16px sans-serif';
+            ctx.fillText((done?'[OK] ':'')+(qd?'★ '+qd.name+' ★':'Fete au Village'), contentX, contentY+20);
+            ctx.fillStyle = done ? '#88AA66' : '#FFF';
+            ctx.font='12px sans-serif';
+            ctx.fillText(qd?qd.desc:'', contentX+20, contentY+34);
+
+            // Sous-conditions
+            const subY = contentY + 60;
+            const crops = Object.keys(DATA.CROPS);
+            const veggieDetails = crops.map(c => {
+                const qty = s.inventory[c] || 0;
+                const ok = qty >= 3;
+                return { name: DATA.CROPS[c].name, qty, ok };
+            });
+
+            // Legumes
+            ctx.fillStyle = cond.veggies ? '#88CC66' : '#E8C850';
+            ctx.font = 'bold 14px sans-serif';
+            ctx.fillText((cond.veggies ? '[OK] ' : '[ ] ') + 'Ramasser 3 de chaque legume', contentX, subY);
+
+            ctx.font = '12px sans-serif';
+            let vegRow = 0;
+            for (let i = 0; i < veggieDetails.length; i++) {
+                const v = veggieDetails[i];
+                const col2 = i % 2;
+                const row = Math.floor(i / 2);
+                const vx = contentX + 20 + col2 * 260;
+                const vy = subY + 18 + row * 18;
+                ctx.fillStyle = v.ok ? '#88AA66' : '#C4A882';
+                ctx.fillText(`${v.name}: ${v.qty}/3 ${v.ok ? '✓' : ''}`, vx, vy);
+                vegRow = row;
+            }
+
+            const npcY = subY + 18 + (vegRow + 1) * 18 + 10;
+            const totalNpcs = DATA.NPCS.length;
+            ctx.fillStyle = cond.npcs ? '#88CC66' : '#E8C850';
+            ctx.font = 'bold 14px sans-serif';
+            ctx.fillText((cond.npcs ? '[OK] ' : '[ ] ') + `Inviter tous les habitants (${s.feteInvited.length}/${totalNpcs})`, contentX, npcY);
+
+            // Liste des NPCs invites
+            ctx.font = '12px sans-serif';
+            for (let i = 0; i < DATA.NPCS.length; i++) {
+                const npc = DATA.NPCS[i];
+                const invited = s.feteInvited.includes(npc.id);
+                const col2 = i % 3;
+                const row = Math.floor(i / 3);
+                const nx = contentX + 20 + col2 * 200;
+                const ny = npcY + 18 + row * 18;
+                ctx.fillStyle = invited ? '#88AA66' : '#886666';
+                ctx.fillText(`${invited ? '✓' : '○'} ${npc.name.split(' ')[0]}`, nx, ny);
+            }
+
+            const maireY = npcY + 18 + Math.ceil(DATA.NPCS.length / 3) * 18 + 10;
+            const maireReady = cond.veggies && cond.npcs;
+            ctx.fillStyle = maireReady ? '#88CC66' : (done ? '#88CC66' : '#888');
+            ctx.font = 'bold 14px sans-serif';
+            ctx.fillText((done ? '[OK] ' : '[ ] ') + 'Parler au Maire pour lancer la fete', contentX, maireY);
+        } else {
+            // Affichage normal des quetes
+            const nonFinal = s.quests.filter(q => { const qd=DATA.QUESTS.find(x=>x.id===q.id); return qd&&!qd.isFinal; });
+            const allNonFinalDone = nonFinal.every(q => q.status==='completed');
+            let yi=0;
+            for (const q of s.quests) {
+                const qd = DATA.QUESTS.find(x=>x.id===q.id);
+                if (!qd) continue;
+                const iy = contentY+10+yi*40;
+                if (iy > my+mh-30) break;
+                const done = q.status==='completed';
+                const isFinal = qd.isFinal;
+                // Highlight special pour la quete finale
+                if (isFinal && allNonFinalDone && !done) {
+                    const pulse2 = 0.4+Math.sin(G.animTime*2)*0.2;
+                    ctx.fillStyle = `rgba(255,215,0,${pulse2})`;
+                    ctx.fillRect(contentX-5,iy-8,contentW,36);
+                    ctx.strokeStyle='#FFD700'; ctx.lineWidth=2;
+                    ctx.strokeRect(contentX-5,iy-8,contentW,36);
+                    ctx.fillStyle='#FFD700'; ctx.font='bold 14px sans-serif';
+                    ctx.fillText('★ '+qd.name+' ★', contentX, iy+8);
+                    ctx.fillStyle='#FFF'; ctx.font='bold 12px sans-serif';
+                    ctx.fillText(qd.desc, contentX+20, iy+24);
+                } else {
+                    ctx.fillStyle = done?'rgba(100,200,100,0.15)':'rgba(200,180,140,0.08)';
+                    ctx.fillRect(contentX-5,iy-8,contentW,36);
+                    ctx.fillStyle = done?'#88CC66':(isFinal?'#888':'#E8C850');
+                    ctx.font='bold 14px sans-serif';
+                    ctx.fillText((done?'[OK] ':'[ ] ')+qd.name, contentX, iy+8);
+                    ctx.fillStyle = done?'#88AA66':'#C4A882';
+                    ctx.font='12px sans-serif';
+                    ctx.fillText(qd.desc, contentX+20, iy+24);
+                }
+                yi++;
+            }
+        }
+    }
+
+    if (ui.menu==='build') {
+        const entries = Object.entries(DATA.BUILDINGS);
+        entries.forEach(([key, b], i) => {
+            const iy = contentY+10+i*38;
+            if (iy > my+mh-30) return;
+            const sel = i===ui.menuIndex;
+            if (sel) { ctx.fillStyle='rgba(200,180,140,0.2)'; ctx.fillRect(contentX-5,iy-8,contentW,34); }
+            // Can afford?
+            let canAfford = true;
+            const costStr = Object.entries(b.cost).map(([k,v])=>{
+                if ((s.inventory[k]||0)<v) canAfford=false;
+                return `${DATA.ITEMS[k]?.name||k}:${v}`;
+            }).join(', ');
+            ctx.fillStyle = canAfford?(sel?'#F5E6D3':'#C4A882'):'#886666';
+            ctx.font='bold 14px sans-serif';
+            ctx.fillText((sel?'> ':'')+b.name, contentX, iy+8);
+            ctx.font='12px sans-serif';
+            ctx.fillText(`Cout: ${costStr}  |  Bonheur: +${b.happiness}`, contentX+20, iy+24);
+        });
+        ctx.fillStyle='#C4A882'; ctx.font='12px sans-serif';
+        ctx.fillText('[Haut/Bas] Choisir  [Espace] Construire  [Echap] Fermer', contentX, my+mh-20);
+    }
+
+    if (ui.menu==='garden') {
+        s.garden.plots.forEach((p,i) => {
+            const col = i%4, row = Math.floor(i/4);
+            const gx = contentX+col*170, gy = contentY+10+row*180;
+            const sel = i===ui.gardenIndex;
+            ctx.fillStyle = sel?'rgba(200,180,140,0.25)':'rgba(100,80,60,0.3)';
+            ctx.beginPath(); ctx.roundRect(gx,gy,155,165,6); ctx.fill();
+            if (sel) { ctx.strokeStyle='#E8C850'; ctx.lineWidth=2; ctx.beginPath(); ctx.roundRect(gx,gy,155,165,6); ctx.stroke(); }
+            // Plot preview
+            ctx.fillStyle='#8B6B3E'; ctx.fillRect(gx+25,gy+10,105,80);
+            if (p.crop && p.stage>0) G.drawCrop(ctx, gx+52, gy+10, 50, p.crop, p.stage);
+            // Info
+            ctx.fillStyle='#F5E6D3'; ctx.font='13px sans-serif';
+            if (!p.crop) {
+                ctx.fillText('Parcelle vide', gx+10, gy+110);
+                if (sel) ctx.fillText('[Espace] Planter', gx+10, gy+130);
+            } else {
+                const cd = DATA.CROPS[p.crop];
+                ctx.fillText(cd?cd.name:p.crop, gx+10, gy+110);
+                const cropD = DATA.CROPS[p.crop];
+                const needed = cropD?(cropD.waterPerStage||1):1;
+                const wc = p.waterCount||0;
+                ctx.fillText(`Stade: ${DATA.CROP_STAGES[p.stage]||'?'}`, gx+10, gy+128);
+                ctx.fillText(`Arrosage: ${wc}/${needed}`, gx+10, gy+145);
+                if (sel && p.stage<5 && wc<needed) ctx.fillText('[Espace] Arroser', gx+10, gy+160);
+                if (sel && p.stage>=5) ctx.fillText('[Espace] Recolter!', gx+10, gy+160);
+            }
+        });
+        // Seed selection sub-menu
+        if (ui.gardenMode==='plant') {
+            ctx.fillStyle='rgba(42,31,20,0.95)';
+            ctx.beginPath(); ctx.roundRect(G.W/2-150, G.H/2-120, 300, 240, 8); ctx.fill();
+            ctx.strokeStyle='#C4A882'; ctx.lineWidth=2;
+            ctx.beginPath(); ctx.roundRect(G.W/2-150, G.H/2-120, 300, 240, 8); ctx.stroke();
+            ctx.fillStyle='#E8C850'; ctx.font='bold 16px sans-serif'; ctx.textAlign='center';
+            ctx.fillText('Choisir une graine', G.W/2, G.H/2-95);
+            ctx.textAlign='left';
+            const seeds = Object.entries(s.inventory).filter(([k,v])=>v>0&&k.startsWith('graine_'));
+            if (seeds.length===0) {
+                ctx.fillStyle='#C4A882'; ctx.font='14px sans-serif';
+                ctx.fillText('Pas de graines disponibles!', G.W/2-120, G.H/2-50);
+            }
+            seeds.forEach(([key,qty],i) => {
+                const iy = G.H/2-65+i*30;
+                const sel2 = i===ui.cropSelect;
+                const item = DATA.ITEMS[key];
+                const crop = item?.crop ? DATA.CROPS[item.crop] : null;
+                const canPlant = crop && crop.season ? crop.season.includes(s.season) : true;
+                if (sel2) { ctx.fillStyle='rgba(200,180,140,0.2)'; ctx.fillRect(G.W/2-140,iy-8,280,26); }
+                ctx.fillStyle=item?.icon||'#AAA';
+                ctx.beginPath(); ctx.arc(G.W/2-120, iy+5, 6, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = canPlant?(sel2?'#F5E6D3':'#C4A882'):'#885555'; ctx.font='14px sans-serif';
+                const seasonTag = crop&&crop.season ? ` (${crop.season.join('/')})` : '';
+                ctx.fillText(`${item?.name||key}  x${qty}${seasonTag}`, G.W/2-105, iy+9);
+            });
+        }
+        ctx.fillStyle='#C4A882'; ctx.font='12px sans-serif'; ctx.textAlign='left';
+        ctx.fillText('[Fleches] Naviguer  [Espace] Action  [Echap] Fermer', contentX, my+mh-15);
+    }
+
+    if (ui.menu==='map') {
+        // Draw a minimap of all communes
+        const mapCx=G.W/2, mapCy=G.H/2+10, scale=5.5;
+        // Background
+        const sc2 = DATA.SEASON_COLORS[s.season];
+        ctx.fillStyle=sc2.grass;
+        ctx.beginPath(); ctx.roundRect(mx+20,my+50,mw-40,mh-70,8); ctx.fill();
+        // River
+        ctx.strokeStyle='#5B9BD5'; ctx.lineWidth=3;
+        ctx.beginPath();
+        ctx.moveTo(mapCx+41*scale-DATA.MAP_W/2*scale, mapCy+0*scale-DATA.MAP_H/2*scale);
+        ctx.lineTo(mapCx+40*scale-DATA.MAP_W/2*scale, mapCy+60*scale-DATA.MAP_H/2*scale);
+        ctx.stroke();
+        // Communes
+        for (const [k,c] of Object.entries(DATA.COMMUNES)) {
+            const cx2 = mapCx+(c.cx-DATA.MAP_W/2)*scale;
+            const cy2 = mapCy+(c.cy-DATA.MAP_H/2)*scale;
+            const visited = s.visitedCommunes.includes(k);
+            ctx.fillStyle = visited ? c.color : '#666';
+            ctx.beginPath(); ctx.arc(cx2,cy2,12,0,Math.PI*2); ctx.fill();
+            ctx.strokeStyle='#333'; ctx.lineWidth=1;
+            ctx.beginPath(); ctx.arc(cx2,cy2,12,0,Math.PI*2); ctx.stroke();
+            ctx.fillStyle=visited?'#FFF':'#999'; ctx.font='bold 10px sans-serif'; ctx.textAlign='center';
+            ctx.fillText(c.name.split(' ')[0].split('-')[0], cx2, cy2+3);
+        }
+        // Player position
+        const ppx = mapCx+(s.player.x-DATA.MAP_W/2)*scale;
+        const ppy = mapCy+(s.player.y-DATA.MAP_H/2)*scale;
+        ctx.fillStyle='#FF4444';
+        ctx.beginPath(); ctx.arc(ppx,ppy,5,0,Math.PI*2); ctx.fill();
+        ctx.strokeStyle='#FFF'; ctx.lineWidth=1.5;
+        ctx.beginPath(); ctx.arc(ppx,ppy,5,0,Math.PI*2); ctx.stroke();
+        // Legend
+        ctx.textAlign='left'; ctx.fillStyle='#C4A882'; ctx.font='12px sans-serif';
+        ctx.fillText(`Communes visitees: ${s.visitedCommunes.length}/8`, contentX, my+mh-20);
+        ctx.textAlign='left';
+    }
+
+    // Escape hint
+    if (ui.menu!=='garden' || ui.gardenMode!=='plant') {
+        ctx.fillStyle='rgba(245,230,211,0.4)'; ctx.font='11px sans-serif';
+        ctx.textAlign='right';
+        ctx.fillText('[Echap] Fermer', mx+mw-15, my+mh-8);
+        ctx.textAlign='left';
+    }
+};
+
+G.renderNotification = function() {
+    const el = document.getElementById('notification');
+    if (G.notifTimer > 0) {
+        el.classList.remove('hidden');
+        el.textContent = G.state.ui.notification || '';
+    } else {
+        el.classList.add('hidden');
+    }
+};
+
+G.renderHUD = function() {
+    const s = G.state;
+    document.getElementById('hud-commune').textContent = G.getCommuneName(s.player.x, s.player.y);
+    const seasonNames = {printemps:'Printemps',ete:'Ete',automne:'Automne',hiver:'Hiver'};
+    document.getElementById('hud-season').textContent = seasonNames[s.season]||s.season;
+    document.getElementById('hud-turn').textContent = `Tour ${s.turn}`;
+    document.getElementById('hud-happiness').textContent = `Bonheur: ${s.happiness}`;
+    document.getElementById('hud-villagers').textContent = `Habitants: ${s.villagers}/${DATA.GOAL_VILLAGERS}`;
+    document.getElementById('hud-hint').textContent = G.getVillagerHint();
+};
+
+G.renderVictoryScreen = function() {
+    const ctx = G.ctx, w = G.W, h = G.H, t = G.animTime;
+
+    // D'abord afficher le jeu en fond
+    G.renderGame();
+
+    // Fond vert semi-transparent
+    ctx.fillStyle = 'rgba(40, 120, 40, 0.75)';
+    ctx.fillRect(0, 0, w, h);
+
+    // Particules festives
+    for (let i = 0; i < 20; i++) {
+        const px = (Math.sin(t * 0.4 + i * 1.7) * w * 0.4 + w / 2) | 0;
+        const py = (Math.sin(t * 0.6 + i * 2.3) * h * 0.35 + h / 2) | 0;
+        ctx.fillStyle = DATA.FLOWER_COLORS[i % DATA.FLOWER_COLORS.length];
+        ctx.globalAlpha = 0.5 + Math.sin(t * 2 + i) * 0.3;
+        ctx.beginPath();
+        ctx.arc(px, py, 4 + Math.sin(t + i) * 2, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    // Titre de felicitations
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    // Ombre
+    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    ctx.font = 'bold 48px "Segoe UI", sans-serif';
+    ctx.fillText('FELICITATIONS!', w / 2 + 3, h * 0.25 + 3);
+    // Texte
+    ctx.fillStyle = '#FFD700';
+    ctx.fillText('FELICITATIONS!', w / 2, h * 0.25);
+
+    ctx.fillStyle = '#F5E6D3';
+    ctx.font = '24px "Segoe UI", sans-serif';
+    ctx.fillText('La Grande Fete du Village bat son plein!', w / 2, h * 0.35);
+
+    ctx.font = '20px "Segoe UI", sans-serif';
+    ctx.fillText('Athis-Val-de-Rouvre est devenu un village', w / 2, h * 0.45);
+    ctx.fillText('prospere et heureux grace a vous!', w / 2, h * 0.50);
+
+    // Stats
+    const s = G.state;
+    ctx.fillStyle = '#E8C850';
+    ctx.font = '18px "Segoe UI", sans-serif';
+    ctx.fillText(`${s.villagers} habitants  |  ${s.happiness} bonheur  |  ${s.totalBuildings} batiments  |  Tour ${s.turn}`, w / 2, h * 0.60);
+
+    // Bouton Rejouer
+    const btnX = w / 2 - 120, btnY = h * 0.72, btnW = 240, btnH = 50;
+    const hover = G.mouse.x > btnX && G.mouse.x < btnX + btnW && G.mouse.y > btnY && G.mouse.y < btnY + btnH;
+    ctx.fillStyle = hover ? 'rgba(42,31,20,0.95)' : 'rgba(42,31,20,0.8)';
+    ctx.beginPath();
+    ctx.roundRect(btnX, btnY, btnW, btnH, 10);
+    ctx.fill();
+    ctx.strokeStyle = '#C4A882';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(btnX, btnY, btnW, btnH, 10);
+    ctx.stroke();
+    ctx.fillStyle = '#F5E6D3';
+    ctx.font = hover ? 'bold 22px "Segoe UI", sans-serif' : '20px "Segoe UI", sans-serif';
+    ctx.fillText('Rejouer', w / 2, btnY + btnH / 2);
+
+    // Footer
+    ctx.fillStyle = 'rgba(245,230,211,0.5)';
+    ctx.font = '14px "Segoe UI", sans-serif';
+    ctx.fillText('Merci d\'avoir joue!', w / 2, h * 0.88);
+
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'alphabetic';
+};
