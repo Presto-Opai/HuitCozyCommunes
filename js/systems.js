@@ -297,6 +297,46 @@ G.interactNPC = function(npc) {
     if (s.feteActive && s.fetePhase === 'gather') {
         // Parler au Maire quand tout est pret
         if (npc.id === 'maire') {
+            // Premiere visite pendant la fete : donner les graines manquantes
+            if (!s.feteSeeds) {
+                s.feteSeeds = true;
+                const seedMap = {
+                    'tomate':'graine_t','carotte':'graine_c','salade':'graine_s',
+                    'courgette':'graine_co','patate':'graine_p','fraise':'graine_f',
+                    'tournesol':'graine_to','citrouille':'graine_ci'
+                };
+                const gift = {};
+                for (const [crop, seedKey] of Object.entries(seedMap)) {
+                    const veggiesHave = s.inventory[crop] || 0;
+                    const seedsHave = s.inventory[seedKey] || 0;
+                    const harvestsNeeded = Math.max(0, Math.ceil((3 - veggiesHave) / 2));
+                    const seedsNeeded = Math.max(0, harvestsNeeded - seedsHave);
+                    if (seedsNeeded > 0) {
+                        G.addItem(seedKey, seedsNeeded);
+                        gift[seedKey] = seedsNeeded;
+                    }
+                }
+                const giftEntries = Object.entries(gift);
+                const lines = [
+                    'La fete approche! Il va falloir un sacre festin.',
+                    'Cultivez 3 de chaque legume et invitez tous les habitants!',
+                    'Pas besoin de m\'inviter, je serai la de toute facon!',
+                ];
+                if (giftEntries.length > 0) {
+                    lines.splice(1, 0, 'Voici des graines pour vous aider a preparer tout ca.');
+                    const giftStr = giftEntries.map(([k,v]) => `${DATA.ITEMS[k]?.name||k} x${v}`).join(', ');
+                    lines.push(`[Recu: ${giftStr}]`);
+                } else {
+                    lines.splice(1, 0, 'Vous avez deja toutes les graines qu\'il vous faut!');
+                }
+                s.ui.dialogue = {
+                    name: npc.name,
+                    lines: lines,
+                    index: 0, npcId: npc.id,
+                };
+                return;
+            }
+
             const cond = G.checkFeteConditions();
             if (cond.ready) {
                 // Consommer les legumes (3 de chaque)
@@ -318,9 +358,11 @@ G.interactNPC = function(npc) {
                 return;
             } else {
                 // Maire dit ce qu'il manque
+                const invitableNpcs = DATA.NPCS.filter(n => n.id !== 'maire');
+                const invitedCount = s.feteInvited.filter(id => id !== 'maire').length;
                 const lines = ['Hmm, il manque encore des choses pour la fete...'];
                 if (!cond.veggies) lines.push('Il faut 3 de chaque legume (8 types).');
-                if (!cond.npcs) lines.push(`Il faut inviter tous les habitants (${s.feteInvited.length}/9).`);
+                if (!cond.npcs) lines.push(`Il faut inviter tous les habitants (${invitedCount}/${invitableNpcs.length}).`);
                 if (cond.veggies && cond.npcs) lines.push('Revenez me voir quand tout sera pret!');
                 s.ui.dialogue = {
                     name: npc.name,
@@ -331,10 +373,12 @@ G.interactNPC = function(npc) {
             }
         }
 
-        // Inviter un NPC pas encore invite
+        // Inviter un NPC pas encore invite (le maire est exclu, on le gere au-dessus)
         if (!s.feteInvited.includes(npc.id)) {
             s.feteInvited.push(npc.id);
-            const remaining = DATA.NPCS.length - s.feteInvited.length;
+            const invitableNpcs = DATA.NPCS.filter(n => n.id !== 'maire');
+            const invitedCount = s.feteInvited.filter(id => id !== 'maire').length;
+            const remaining = invitableNpcs.length - invitedCount;
             s.ui.dialogue = {
                 name: npc.name,
                 lines: [
@@ -604,8 +648,9 @@ G.checkFeteConditions = function() {
     const s = G.state;
     const crops = Object.keys(DATA.CROPS);
     const veggies = crops.every(crop => (s.inventory[crop] || 0) >= 3);
-    const totalNpcs = DATA.NPCS.length; // 9 NPCs
-    const npcs = s.feteInvited.length >= totalNpcs;
+    const invitableNpcs = DATA.NPCS.filter(n => n.id !== 'maire');
+    const invitedCount = s.feteInvited.filter(id => id !== 'maire').length;
+    const npcs = invitedCount >= invitableNpcs.length;
     return { veggies, npcs, ready: veggies && npcs };
 };
 

@@ -852,15 +852,16 @@ G.renderMenu = function() {
             }
 
             const npcY = subY + 18 + (vegRow + 1) * 18 + 10;
-            const totalNpcs = DATA.NPCS.length;
+            const invitableNpcs = DATA.NPCS.filter(n => n.id !== 'maire');
+            const invitedCount = s.feteInvited.filter(id => id !== 'maire').length;
             ctx.fillStyle = cond.npcs ? '#88CC66' : '#E8C850';
             ctx.font = 'bold 14px sans-serif';
-            ctx.fillText((cond.npcs ? '[OK] ' : '[ ] ') + `Inviter tous les habitants (${s.feteInvited.length}/${totalNpcs})`, contentX, npcY);
+            ctx.fillText((cond.npcs ? '[OK] ' : '[ ] ') + `Inviter les habitants (${invitedCount}/${invitableNpcs.length})`, contentX, npcY);
 
-            // Liste des NPCs invites
+            // Liste des NPCs invites (sans le maire)
             ctx.font = '12px sans-serif';
-            for (let i = 0; i < DATA.NPCS.length; i++) {
-                const npc = DATA.NPCS[i];
+            for (let i = 0; i < invitableNpcs.length; i++) {
+                const npc = invitableNpcs[i];
                 const invited = s.feteInvited.includes(npc.id);
                 const col2 = i % 3;
                 const row = Math.floor(i / 3);
@@ -870,7 +871,7 @@ G.renderMenu = function() {
                 ctx.fillText(`${invited ? '✓' : '○'} ${npc.name.split(' ')[0]}`, nx, ny);
             }
 
-            const maireY = npcY + 18 + Math.ceil(DATA.NPCS.length / 3) * 18 + 10;
+            const maireY = npcY + 18 + Math.ceil(invitableNpcs.length / 3) * 18 + 10;
             const maireReady = cond.veggies && cond.npcs;
             ctx.fillStyle = maireReady ? '#88CC66' : (done ? '#88CC66' : '#888');
             ctx.font = 'bold 14px sans-serif';

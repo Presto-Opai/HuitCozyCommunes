@@ -350,7 +350,7 @@ const DATA = {
           rewardText:'Un lieu plein de serenite.' },
         // --- Quete finale, toujours en dernier ---
         { id:'fete', name:'La Grande Fete du Village',
-          desc:'Rassembler 3 de chaque legume, inviter tous les habitants, et parler au Maire!',
+          desc:'Rassembler 3 de chaque legume, inviter les habitants, et parler au Maire!',
           type:'fete_finale',
           isFinal: true,
           reward:{},
