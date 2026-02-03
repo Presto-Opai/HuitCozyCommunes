@@ -297,6 +297,7 @@ G.defaultState = function() {
         feteInvited: [],
         fetePhase: null,
         feteTimer: 0,
+        feteSeeds: false,
     };
 };
 
