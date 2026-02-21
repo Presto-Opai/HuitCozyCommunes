@@ -70,12 +70,13 @@ G.plantSeed = function(plotIdx, seedKey) {
     const crop = DATA.CROPS[item.crop];
     // Verif saison stricte
     if (crop && crop.season && !crop.season.includes(s.season)) {
-        const saisonsFr = crop.season.join(', ');
-        G.notify(`Les ${crop.name} ne poussent qu'en ${saisonsFr}.`);
+        const seasonsFr = { printemps: 'Printemps', ete: 'Été', automne: 'Automne', hiver: 'Hiver' };
+        const saisonsDisplay = crop.season.map(ss => seasonsFr[ss] || ss).join(', ');
+        G.notify(`Les ${crop.name} ne poussent qu'en ${saisonsDisplay}.`);
         return false;
     }
     if (s.season === 'hiver') {
-        G.notify('On ne peut pas planter en hiver!');
+        G.notify('On ne peut pas planter en hiver !');
         return false;
     }
     G.removeItem(seedKey, 1);
@@ -84,7 +85,7 @@ G.plantSeed = function(plotIdx, seedKey) {
     plot.waterCount = 0;
     plot.turnsGrown = 0;
     G.advanceTurn();
-    G.notify(`${crop.name} plantees!`);
+    G.notify(`${crop.name} plantées !`);
     return true;
 };
 
@@ -96,16 +97,21 @@ G.waterPlot = function(plotIdx) {
     const needed = crop ? (crop.waterPerStage||1) : 1;
     const current = plot.waterCount || 0;
     if (current >= needed) {
-        G.notify('Assez arrose pour ce stade!');
+        G.notify('Déjà bien arrosé pour ce stade !');
         return false;
     }
     plot.waterCount = current + 1;
-    G.advanceTurn();
-    if (plot.waterCount >= needed) {
-        G.notify(`Arrose! (${plot.waterCount}/${needed})`);
+    // Compost bonus: high happiness gives a chance to double-water
+    const compostBonus = s.happiness >= 20 && Math.random() < 0.18;
+    if (compostBonus && plot.waterCount < needed) {
+        plot.waterCount++;
+        G.notify(`Arrosé ! Le compost aide (+1 bonus) (${plot.waterCount}/${needed}) ✿`);
+    } else if (plot.waterCount >= needed) {
+        G.notify(`Arrosé ! (${plot.waterCount}/${needed})`);
     } else {
-        G.notify(`Arrose (${plot.waterCount}/${needed})`);
+        G.notify(`Arrosé (${plot.waterCount}/${needed})`);
     }
+    G.advanceTurn();
     return true;
 };
 
@@ -125,7 +131,7 @@ G.harvestPlot = function(plotIdx) {
     plot.waterCount = 0;
     plot.turnsGrown = 0;
     G.advanceTurn();
-    G.notify(`Recolte: ${crop.name} x2!`);
+    G.notify(`Récolte : ${crop.name} x2 !`);
     return true;
 };
 
@@ -198,7 +204,7 @@ G.buildStructure = function(typeKey) {
     s.happiness += b.happiness;
     s.totalBuildings++;
     G.advanceTurn();
-    G.notify(`${b.name} construit(e)! Bonheur +${b.happiness}`);
+    G.notify(`${b.name} construit(e) ! Bonheur +${b.happiness}`);
     return true;
 };
 
@@ -269,7 +275,7 @@ G.checkQuests = function() {
                     for (const [k,v] of Object.entries(qd.reward.items)) G.addItem(k,v);
                 }
             }
-            G.notify(`Quete terminee: ${qd.name}!`, 5);
+            G.notify(`Quête terminée : ${qd.name} !`, 5);
         }
     }
     // Verifier si la quete finale est debloquee
@@ -285,7 +291,7 @@ G.checkFinalQuestUnlock = function() {
     const allDone = nonFinal.every(q => q.status === 'completed');
     if (allDone && !s._feteUnlocked) {
         s._feteUnlocked = true;
-        G.notify('Toutes les quetes sont terminees! Objectif final: La Grande Fete!', 7);
+        G.notify('Toutes les quêtes sont terminées ! Objectif final : La Grande Fête !', 7);
     }
 };
 

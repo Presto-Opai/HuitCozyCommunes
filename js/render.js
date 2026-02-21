@@ -3,18 +3,31 @@
 // ============================================================
 
 // --- Sprite drawing helpers ---
-G.drawChar = function(ctx, sx, sy, s, bodyCol, hairCol, dir, bounce) {
+// isWoman: if true, draw longer hair / dress silhouette
+G.drawChar = function(ctx, sx, sy, s, bodyCol, hairCol, dir, bounce, isWoman) {
     const b = bounce||0;
     // Shadow
     ctx.fillStyle = 'rgba(0,0,0,0.13)';
     ctx.beginPath();
     ctx.ellipse(sx+s/2, sy+s*0.92, s*0.28, s*0.07, 0, 0, Math.PI*2);
     ctx.fill();
-    // Legs
-    ctx.fillStyle = '#5A7A5A';
-    const legOff = Math.sin(b*8)*s*0.03;
-    ctx.fillRect(sx+s*0.3, sy+s*0.66-b*2+legOff, s*0.14, s*0.22);
-    ctx.fillRect(sx+s*0.56, sy+s*0.66-b*2-legOff, s*0.14, s*0.22);
+    // Legs / skirt base for women
+    if (isWoman) {
+        // Dress / skirt shape
+        ctx.fillStyle = bodyCol;
+        ctx.beginPath();
+        ctx.moveTo(sx+s*0.22, sy+s*0.68-b*2);
+        ctx.lineTo(sx+s*0.16, sy+s*0.9-b*2);
+        ctx.lineTo(sx+s*0.84, sy+s*0.9-b*2);
+        ctx.lineTo(sx+s*0.78, sy+s*0.68-b*2);
+        ctx.closePath();
+        ctx.fill();
+    } else {
+        ctx.fillStyle = '#5A7A5A';
+        const legOff = Math.sin(b*8)*s*0.03;
+        ctx.fillRect(sx+s*0.3, sy+s*0.66-b*2+legOff, s*0.14, s*0.22);
+        ctx.fillRect(sx+s*0.56, sy+s*0.66-b*2-legOff, s*0.14, s*0.22);
+    }
     // Body
     ctx.fillStyle = bodyCol;
     ctx.beginPath();
@@ -41,6 +54,19 @@ G.drawChar = function(ctx, sx, sy, s, bodyCol, hairCol, dir, bounce) {
     ctx.arc(sx+s/2, sy+s*0.22-b*2, s*0.2, Math.PI*0.9, Math.PI*2.1);
     ctx.fill();
     ctx.fillRect(sx+s*0.3, sy+s*0.1-b*2, s*0.4, s*0.1);
+    if (isWoman) {
+        // Long hair sides
+        ctx.beginPath();
+        ctx.ellipse(sx+s*0.28, sy+s*0.3-b*2, s*0.07, s*0.14, -0.15, 0, Math.PI*2);
+        ctx.ellipse(sx+s*0.72, sy+s*0.3-b*2, s*0.07, s*0.14, 0.15, 0, Math.PI*2);
+        ctx.fill();
+        // Braid or tail hint at back
+        if (dir !== 'up') {
+            ctx.beginPath();
+            ctx.ellipse(sx+s*0.73, sy+s*0.38-b*2, s*0.045, s*0.09, 0.2, 0, Math.PI*2);
+            ctx.fill();
+        }
+    }
     // Eyes
     if (dir !== 'up') {
         ctx.fillStyle = '#3A2A1A';
@@ -768,7 +794,7 @@ G.renderGame = function() {
     // --- Draw player ---
     const px = (s.player.x-startX)*ts+offX;
     const py = (s.player.y-startY)*ts+offY;
-    G.drawChar(ctx, px, py-6, ts, '#5B88C8', '#8B5E3C', s.player.dir, G.playerBounce||0);
+    G.drawChar(ctx, px, py-6, ts, '#6A7EC8', '#A03040', s.player.dir, G.playerBounce||0, true);
 
     // --- Particles ---
     for (const p of s.particles) {
@@ -1071,58 +1097,107 @@ G.renderMenu = function() {
     if (ui.menu==='garden') {
         s.garden.plots.forEach((p,i) => {
             const col = i%4, row = Math.floor(i/4);
-            const gx = contentX+col*170, gy = contentY+10+row*180;
+            const gx = contentX+col*170, gy = contentY+10+row*185;
             const sel = i===ui.gardenIndex;
-            ctx.fillStyle = sel?'rgba(200,180,140,0.25)':'rgba(100,80,60,0.3)';
-            ctx.beginPath(); ctx.roundRect(gx,gy,155,165,6); ctx.fill();
-            if (sel) { ctx.strokeStyle='#E8C850'; ctx.lineWidth=2; ctx.beginPath(); ctx.roundRect(gx,gy,155,165,6); ctx.stroke(); }
-            // Plot preview
-            ctx.fillStyle='#8B6B3E'; ctx.fillRect(gx+25,gy+10,105,80);
-            if (p.crop && p.stage>0) G.drawCrop(ctx, gx+52, gy+10, 50, p.crop, p.stage);
-            // Info
-            ctx.fillStyle='#F5E6D3'; ctx.font='13px sans-serif';
-            if (!p.crop) {
-                ctx.fillText('Parcelle vide', gx+10, gy+110);
-                if (sel) ctx.fillText('[Espace] Planter', gx+10, gy+130);
-            } else {
-                const cd = DATA.CROPS[p.crop];
-                ctx.fillText(cd?cd.name:p.crop, gx+10, gy+110);
-                const cropD = DATA.CROPS[p.crop];
-                const needed = cropD?(cropD.waterPerStage||1):1;
+            // Card bg
+            ctx.fillStyle = sel?'rgba(200,180,140,0.22)':'rgba(80,60,40,0.28)';
+            ctx.beginPath(); ctx.roundRect(gx,gy,158,170,7); ctx.fill();
+            if (sel) {
+                ctx.strokeStyle='#E8C850'; ctx.lineWidth=2;
+                ctx.beginPath(); ctx.roundRect(gx,gy,158,170,7); ctx.stroke();
+            }
+            // Plot soil preview area
+            ctx.fillStyle='#7D5F35'; ctx.beginPath(); ctx.roundRect(gx+8,gy+8,142,82,4); ctx.fill();
+            // Soil texture rows
+            ctx.fillStyle='rgba(0,0,0,0.12)';
+            for (let r=0;r<3;r++) ctx.fillRect(gx+12, gy+12+r*26, 134, 3);
+            if (p.crop && p.stage>0) G.drawCrop(ctx, gx+54, gy+8, 50, p.crop, p.stage);
+            // Stage badge
+            if (p.crop) {
+                const stageColors = ['','#C8A060','#7EC850','#5DA832','#FFD700','#FF8800'];
+                ctx.fillStyle = stageColors[p.stage]||'#C4A882';
+                ctx.beginPath(); ctx.roundRect(gx+8,gy+94,48,14,7); ctx.fill();
+                ctx.fillStyle='#1A0F08'; ctx.font='bold 9px sans-serif'; ctx.textAlign='center';
+                ctx.fillText(DATA.CROP_STAGES[p.stage]||'?', gx+32, gy+104);
+                ctx.textAlign='left';
+            }
+            // Crop name
+            ctx.fillStyle = p.crop ? '#F5E6D3' : '#A89070';
+            ctx.font = 'bold 12px sans-serif';
+            const cropD = p.crop ? DATA.CROPS[p.crop] : null;
+            ctx.fillText(cropD ? cropD.name : 'Parcelle vide', gx+10, gy+122);
+            if (p.crop && p.stage>0 && p.stage<5) {
+                // Water progress bar
+                const needed = cropD ? (cropD.waterPerStage||1) : 1;
                 const wc = p.waterCount||0;
-                ctx.fillText(`Stade: ${DATA.CROP_STAGES[p.stage]||'?'}`, gx+10, gy+128);
-                ctx.fillText(`Arrosage: ${wc}/${needed}`, gx+10, gy+145);
-                if (sel && p.stage<5 && wc<needed) ctx.fillText('[Espace] Arroser', gx+10, gy+160);
-                if (sel && p.stage>=5) ctx.fillText('[Espace] Recolter!', gx+10, gy+160);
+                const barW = 138, barH = 8;
+                ctx.fillStyle='rgba(91,155,213,0.2)';
+                ctx.beginPath(); ctx.roundRect(gx+10,gy+130,barW,barH,4); ctx.fill();
+                if (wc > 0) {
+                    ctx.fillStyle='rgba(91,155,213,0.85)';
+                    ctx.beginPath(); ctx.roundRect(gx+10,gy+130,(barW*wc/needed)|0,barH,4); ctx.fill();
+                }
+                ctx.fillStyle='rgba(136,204,255,0.7)'; ctx.font='9px sans-serif';
+                ctx.fillText(`💧 ${wc}/${needed}`, gx+10, gy+152);
+                if (sel && wc<needed) {
+                    ctx.fillStyle='#7EC850'; ctx.font='bold 11px sans-serif';
+                    ctx.fillText('[Espace] Arroser', gx+10, gy+165);
+                }
+            } else if (p.crop && p.stage>=5) {
+                ctx.fillStyle='#FFD700'; ctx.font='bold 11px sans-serif';
+                const sp = Math.sin(G.animTime*4)*1;
+                ctx.fillText('✦ Prêt à récolter !', gx+10, gy+140+sp);
+                if (sel) ctx.fillText('[Espace] Récolter', gx+10, gy+157);
+            } else if (!p.crop) {
+                if (sel) { ctx.fillStyle='#7EC850'; ctx.font='11px sans-serif'; ctx.fillText('[Espace] Planter', gx+10, gy+140); }
             }
         });
         // Seed selection sub-menu
         if (ui.gardenMode==='plant') {
-            ctx.fillStyle='rgba(42,31,20,0.95)';
-            ctx.beginPath(); ctx.roundRect(G.W/2-150, G.H/2-120, 300, 240, 8); ctx.fill();
-            ctx.strokeStyle='#C4A882'; ctx.lineWidth=2;
-            ctx.beginPath(); ctx.roundRect(G.W/2-150, G.H/2-120, 300, 240, 8); ctx.stroke();
-            ctx.fillStyle='#E8C850'; ctx.font='bold 16px sans-serif'; ctx.textAlign='center';
-            ctx.fillText('Choisir une graine', G.W/2, G.H/2-95);
-            ctx.textAlign='left';
             const seeds = Object.entries(s.inventory).filter(([k,v])=>v>0&&k.startsWith('graine_'));
+            const boxH = Math.max(200, Math.min(340, 80 + seeds.length * 32));
+            const boxY = G.H/2 - boxH/2;
+            ctx.fillStyle='rgba(42,31,20,0.95)';
+            ctx.beginPath(); ctx.roundRect(G.W/2-165, boxY, 330, boxH, 8); ctx.fill();
+            ctx.strokeStyle='#C4A882'; ctx.lineWidth=2;
+            ctx.beginPath(); ctx.roundRect(G.W/2-165, boxY, 330, boxH, 8); ctx.stroke();
+            ctx.fillStyle='#E8C850'; ctx.font='bold 16px sans-serif'; ctx.textAlign='center';
+            ctx.fillText('Choisir une graine', G.W/2, boxY+26);
+            ctx.strokeStyle='rgba(196,168,130,0.25)'; ctx.lineWidth=1;
+            ctx.beginPath(); ctx.moveTo(G.W/2-150, boxY+38); ctx.lineTo(G.W/2+150, boxY+38); ctx.stroke();
+            ctx.textAlign='left';
+            const seasonsFr = { printemps: 'Prin.', ete: 'Été', automne: 'Aut.', hiver: 'Hiver' };
             if (seeds.length===0) {
-                ctx.fillStyle='#C4A882'; ctx.font='14px sans-serif';
-                ctx.fillText('Pas de graines disponibles!', G.W/2-120, G.H/2-50);
+                ctx.fillStyle='#C4A882'; ctx.font='14px sans-serif'; ctx.textAlign='center';
+                ctx.fillText('Aucune graine disponible !', G.W/2, boxY+80);
+                ctx.textAlign='left';
             }
             seeds.forEach(([key,qty],i) => {
-                const iy = G.H/2-65+i*30;
+                const iy = boxY + 52 + i*30;
                 const sel2 = i===ui.cropSelect;
                 const item = DATA.ITEMS[key];
                 const crop = item?.crop ? DATA.CROPS[item.crop] : null;
                 const canPlant = crop && crop.season ? crop.season.includes(s.season) : true;
-                if (sel2) { ctx.fillStyle='rgba(200,180,140,0.2)'; ctx.fillRect(G.W/2-140,iy-8,280,26); }
+                if (sel2) {
+                    ctx.fillStyle='rgba(200,180,140,0.2)'; ctx.beginPath();
+                    ctx.roundRect(G.W/2-155, iy-8, 310, 26, 4); ctx.fill();
+                    ctx.strokeStyle='rgba(232,200,80,0.4)'; ctx.lineWidth=1;
+                    ctx.beginPath(); ctx.roundRect(G.W/2-155, iy-8, 310, 26, 4); ctx.stroke();
+                }
                 ctx.fillStyle=item?.icon||'#AAA';
-                ctx.beginPath(); ctx.arc(G.W/2-120, iy+5, 6, 0, Math.PI*2); ctx.fill();
-                ctx.fillStyle = canPlant?(sel2?'#F5E6D3':'#C4A882'):'#885555'; ctx.font='14px sans-serif';
-                const seasonTag = crop&&crop.season ? ` (${crop.season.join('/')})` : '';
-                ctx.fillText(`${item?.name||key}  x${qty}${seasonTag}`, G.W/2-105, iy+9);
+                ctx.beginPath(); ctx.arc(G.W/2-138, iy+5, 6, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = !canPlant ? '#885555' : (sel2?'#F5E6D3':'#C4A882');
+                ctx.font='13px sans-serif';
+                const seasonTag = crop&&crop.season ? ` · ${crop.season.map(ss=>seasonsFr[ss]||ss).join('/')}` : '';
+                ctx.fillText(`${item?.name||key}  x${qty}${seasonTag}`, G.W/2-122, iy+9);
+                if (!canPlant) {
+                    ctx.fillStyle='rgba(255,80,80,0.7)'; ctx.font='10px sans-serif';
+                    ctx.fillText('hors saison', G.W/2+60, iy+9);
+                }
             });
+            ctx.fillStyle='rgba(196,168,130,0.45)'; ctx.font='11px sans-serif'; ctx.textAlign='center';
+            ctx.fillText('[↑↓] Choisir  [Espace] Planter  [Échap] Annuler', G.W/2, boxY+boxH-10);
+            ctx.textAlign='left';
         }
         ctx.fillStyle='#C4A882'; ctx.font='12px sans-serif'; ctx.textAlign='left';
         ctx.fillText('[Fleches] Naviguer  [Espace] Action  [Echap] Fermer', contentX, my+mh-15);
