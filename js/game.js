@@ -249,8 +249,11 @@ G.update = function(dt) {
         if ((dx||dy) && !s.ui.menu && !s.ui.dialogue) {
             G.movePlayer(dx, dy);
             G.lastMove = now;
+            G.playerBounce = 1; // trigger bounce
         }
     }
+    // Decay bounce
+    if (G.playerBounce > 0) G.playerBounce = Math.max(0, G.playerBounce - 6 * (1/60));
 
     G.updateCamera();
     G.updateWildlife(dt);

@@ -407,65 +407,102 @@ G.drawBuildingSprite = function(ctx, sx, sy, s, type) {
 // --- Main rendering ---
 G.renderTitleScreen = function() {
     const ctx = G.ctx, w = G.W, h = G.H, t = G.animTime;
-    // Sky
+    // Sky gradient — dusk-to-dawn cozy
     const grd = ctx.createLinearGradient(0,0,0,h);
-    grd.addColorStop(0,'#87CEEB'); grd.addColorStop(0.6,'#B8E6B8'); grd.addColorStop(1,'#7EC850');
+    grd.addColorStop(0,'#A8D8EA'); grd.addColorStop(0.45,'#C8E8C0'); grd.addColorStop(1,'#7EC850');
     ctx.fillStyle = grd; ctx.fillRect(0,0,w,h);
-    // Hills
-    ctx.fillStyle = '#6AAF3D';
-    ctx.beginPath(); ctx.moveTo(0,h*0.55);
-    for (let x=0;x<=w;x+=20) ctx.lineTo(x, h*0.55+Math.sin(x*0.008+1)*40+Math.sin(x*0.015)*20);
+
+    // Clouds
+    ctx.fillStyle = 'rgba(255,255,255,0.55)';
+    const clouds = [{x:0.15,y:0.1,r:55},{x:0.5,y:0.07,r:70},{x:0.82,y:0.12,r:45}];
+    for (const cl of clouds) {
+        const cx = (cl.x*w + Math.sin(t*0.08 + cl.r)*18)|0;
+        const cy = (cl.y*h)|0;
+        ctx.beginPath(); ctx.arc(cx,cy,cl.r,0,Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(cx+cl.r*0.6,cy+8,cl.r*0.65,0,Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(cx-cl.r*0.55,cy+10,cl.r*0.55,0,Math.PI*2); ctx.fill();
+    }
+
+    // Hills (back)
+    ctx.fillStyle = '#78BF45';
+    ctx.beginPath(); ctx.moveTo(0,h*0.52);
+    for (let x=0;x<=w;x+=20) ctx.lineTo(x, h*0.52+Math.sin(x*0.008+1)*40+Math.sin(x*0.015)*20);
     ctx.lineTo(w,h); ctx.lineTo(0,h); ctx.fill();
+    // Hills (front)
     ctx.fillStyle = '#5DA832';
-    ctx.beginPath(); ctx.moveTo(0,h*0.65);
-    for (let x=0;x<=w;x+=20) ctx.lineTo(x, h*0.65+Math.sin(x*0.01+2)*30+Math.sin(x*0.02)*15);
+    ctx.beginPath(); ctx.moveTo(0,h*0.63);
+    for (let x=0;x<=w;x+=20) ctx.lineTo(x, h*0.63+Math.sin(x*0.01+2)*28+Math.sin(x*0.02)*14);
     ctx.lineTo(w,h); ctx.lineTo(0,h); ctx.fill();
+
     // Trees
-    for (let i=0;i<12;i++) {
-        const tx = i*85+20, ty = h*0.5+Math.sin(i*1.5)*30+20;
-        G.drawTree(ctx, tx, ty, 48, 'printemps', i);
+    for (let i=0;i<13;i++) {
+        const tx = i*80+10, ty = h*0.48+Math.sin(i*1.5)*28+18;
+        G.drawTree(ctx, tx, ty, 50, 'printemps', i);
     }
+
     // Animated animals
-    const bx = (Math.sin(t*0.3)*200+w/2)|0;
-    G.drawAnimal(ctx, bx, h*0.62, 40, 'lapin', t);
-    G.drawAnimal(ctx, w*0.7, h*0.55, 50, 'cerf', t);
-    G.drawAnimal(ctx, (Math.sin(t*0.5)*100+300)|0, h*0.7, 35, 'papillon', t);
-    // Floating particles
-    for (let i=0;i<15;i++) {
-        ctx.fillStyle = `rgba(255,255,255,${0.3+Math.sin(t+i)*0.2})`;
-        const px = (Math.sin(t*0.3+i*2)*w*0.4+w/2)|0;
-        const py = (Math.sin(t*0.5+i*3)*h*0.2+h*0.3)|0;
-        ctx.beginPath(); ctx.arc(px,py,2,0,Math.PI*2); ctx.fill();
+    G.drawAnimal(ctx, (Math.sin(t*0.3)*180+w*0.38)|0, h*0.61, 40, 'lapin', t);
+    G.drawAnimal(ctx, w*0.72, h*0.53, 52, 'cerf', t);
+    G.drawAnimal(ctx, (Math.sin(t*0.5)*90+w*0.28)|0, h*0.69, 36, 'papillon', t);
+    G.drawAnimal(ctx, (Math.sin(t*0.2)*60+w*0.6)|0, h*0.72, 30, 'lapin', t);
+
+    // Dandelion seeds drifting upward
+    for (let i=0;i<22;i++) {
+        const seed_x = ((G.hash(i,0)*w + t*18*(0.4+G.hash(i,1)*0.6) + i*137) % w)|0;
+        const seed_y = (((1 - ((t*0.04*(0.5+G.hash(i,2)*0.5) + G.hash(i,3)) % 1)) * h * 0.85 + h * 0.1))|0;
+        const alpha = 0.25 + Math.sin(t*1.2+i)*0.15;
+        ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+        ctx.beginPath(); ctx.arc(seed_x, seed_y, 1.5, 0, Math.PI*2); ctx.fill();
+        // tiny stem
+        ctx.strokeStyle = `rgba(255,255,255,${alpha*0.6})`;
+        ctx.lineWidth = 0.8;
+        ctx.beginPath(); ctx.moveTo(seed_x, seed_y); ctx.lineTo(seed_x, seed_y+5); ctx.stroke();
     }
-    // Title
+
+    // Title glow
     ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillStyle='rgba(0,0,0,0.15)';
+    ctx.shadowColor = 'rgba(120,200,80,0.55)';
+    ctx.shadowBlur = 32;
+    ctx.fillStyle='rgba(0,0,0,0.18)';
     ctx.font='bold 52px "Segoe UI", sans-serif';
     ctx.fillText('Les Huit Communes', w/2+3, h*0.2+3);
-    ctx.fillStyle='#F5E6D3';
+    // Shimmer: base color + animated highlight band
+    const shimmerX = (Math.sin(t*0.8)*w*0.6 + w/2)|0;
+    const titleGrd = ctx.createLinearGradient(shimmerX-120, 0, shimmerX+120, 0);
+    titleGrd.addColorStop(0,'#F5E6D3');
+    titleGrd.addColorStop(0.5,'#FFFDF0');
+    titleGrd.addColorStop(1,'#F5E6D3');
+    ctx.fillStyle = titleGrd;
     ctx.font='bold 50px "Segoe UI", sans-serif';
     ctx.fillText('Les Huit Communes', w/2, h*0.2);
-    ctx.fillStyle='#E8D5C0';
-    ctx.font='22px "Segoe UI", sans-serif';
-    ctx.fillText('~ Athis-Val-de-Rouvre ~', w/2, h*0.2+45);
+    ctx.shadowBlur = 0;
+    ctx.fillStyle='#D8C8A8';
+    ctx.font='italic 21px "Segoe UI", sans-serif';
+    ctx.fillText('~ Athis-Val-de-Rouvre ~', w/2, h*0.2+48);
+
     // Menu options
     const opts = ['Nouvelle Partie'];
     if (G.hasSave()) opts.push('Continuer');
     for (let i=0;i<opts.length;i++) {
-        const oy = h*0.4+i*55;
-        const hover = G.mouse.y>oy-20 && G.mouse.y<oy+20 && G.mouse.x>w/2-120 && G.mouse.x<w/2+120;
-        ctx.fillStyle = hover ? 'rgba(42,31,20,0.9)' : 'rgba(42,31,20,0.75)';
-        ctx.beginPath(); ctx.roundRect(w/2-120,oy-22,240,44,8); ctx.fill();
-        ctx.strokeStyle='#C4A882'; ctx.lineWidth=2;
-        ctx.beginPath(); ctx.roundRect(w/2-120,oy-22,240,44,8); ctx.stroke();
-        ctx.fillStyle='#F5E6D3';
-        ctx.font = hover ? 'bold 20px "Segoe UI", sans-serif' : '20px "Segoe UI", sans-serif';
+        const oy = h*0.4+i*58;
+        const hover = G.mouse.y>oy-22 && G.mouse.y<oy+22 && G.mouse.x>w/2-130 && G.mouse.x<w/2+130;
+        // Button shadow
+        ctx.fillStyle='rgba(0,0,0,0.22)';
+        ctx.beginPath(); ctx.roundRect(w/2-128,oy-19,260,46,10); ctx.fill();
+        ctx.fillStyle = hover ? 'rgba(60,42,22,0.96)' : 'rgba(42,28,14,0.82)';
+        ctx.beginPath(); ctx.roundRect(w/2-130,oy-22,260,46,10); ctx.fill();
+        ctx.strokeStyle = hover ? '#E8C850' : '#C4A882';
+        ctx.lineWidth = hover ? 2 : 1.5;
+        ctx.beginPath(); ctx.roundRect(w/2-130,oy-22,260,46,10); ctx.stroke();
+        ctx.fillStyle = hover ? '#FFE8A0' : '#F5E6D3';
+        ctx.font = hover ? 'bold 20px "Segoe UI", sans-serif' : '19px "Segoe UI", sans-serif';
         ctx.fillText(opts[i], w/2, oy);
     }
+
     // Footer
-    ctx.fillStyle='rgba(245,230,211,0.5)';
+    ctx.fillStyle='rgba(245,230,211,0.45)';
     ctx.font='13px "Segoe UI", sans-serif';
-    ctx.fillText('Un jeu cozy dans la campagne normande', w/2, h*0.92);
+    ctx.fillText('Un jeu cozy dans la campagne normande  ✿', w/2, h*0.92);
     ctx.textAlign='left';
 };
 
@@ -700,7 +737,7 @@ G.renderGame = function() {
     // --- Draw player ---
     const px = (s.player.x-startX)*ts+offX;
     const py = (s.player.y-startY)*ts+offY;
-    G.drawChar(ctx, px, py-6, ts, '#5B88C8', '#8B5E3C', s.player.dir, 0);
+    G.drawChar(ctx, px, py-6, ts, '#5B88C8', '#8B5E3C', s.player.dir, G.playerBounce||0);
 
     // --- Particles ---
     for (const p of s.particles) {
@@ -709,42 +746,80 @@ G.renderGame = function() {
         ctx.beginPath(); ctx.arc(p.sx, p.sy, p.size, 0, Math.PI*2); ctx.fill();
     }
     ctx.globalAlpha = 1;
+
+    // --- Vignette overlay ---
+    const vgrd = ctx.createRadialGradient(G.W/2, G.H/2, G.H*0.25, G.W/2, G.H/2, G.W*0.75);
+    vgrd.addColorStop(0, 'rgba(0,0,0,0)');
+    vgrd.addColorStop(1, 'rgba(0,0,0,0.32)');
+    ctx.fillStyle = vgrd;
+    ctx.fillRect(0, 0, G.W, G.H);
 };
 
 G.renderDialogue = function() {
     const ctx=G.ctx, d=G.state.ui.dialogue;
     if (!d) return;
-    const bx=60, by=G.H-160, bw=G.W-120, bh=140;
+    const bx=50, by=G.H-165, bw=G.W-100, bh=148;
+
+    // Drop shadow
+    ctx.fillStyle='rgba(0,0,0,0.3)';
+    ctx.beginPath(); ctx.roundRect(bx+4,by+4,bw,bh,12); ctx.fill();
+
     // Box
-    ctx.fillStyle='rgba(42,31,20,0.92)';
-    ctx.beginPath(); ctx.roundRect(bx,by,bw,bh,10); ctx.fill();
-    ctx.strokeStyle='#C4A882'; ctx.lineWidth=2;
-    ctx.beginPath(); ctx.roundRect(bx,by,bw,bh,10); ctx.stroke();
-    // Name
-    ctx.fillStyle='#E8C850'; ctx.font='bold 16px "Segoe UI", sans-serif';
-    ctx.fillText(d.name, bx+20, by+28);
-    // Text
-    ctx.fillStyle='#F5E6D3'; ctx.font='15px "Segoe UI", sans-serif';
+    ctx.fillStyle='rgba(28,18,8,0.95)';
+    ctx.beginPath(); ctx.roundRect(bx,by,bw,bh,12); ctx.fill();
+    ctx.strokeStyle='#C4A882'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.roundRect(bx,by,bw,bh,12); ctx.stroke();
+    // Inner accent line at top
+    ctx.strokeStyle='rgba(232,200,80,0.25)';
+    ctx.lineWidth=1;
+    ctx.beginPath(); ctx.roundRect(bx+3,by+3,bw-6,bh-6,10); ctx.stroke();
+
+    // Portrait circle
+    const pr=32, pcx=bx+20+pr, pcy=by+bh/2;
+    ctx.fillStyle='rgba(60,40,20,0.8)';
+    ctx.beginPath(); ctx.arc(pcx,pcy,pr,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle='#C4A882'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.arc(pcx,pcy,pr,0,Math.PI*2); ctx.stroke();
+    // Tiny character silhouette in portrait
+    G.drawChar(ctx, pcx-pr*0.55, pcy-pr*0.9, pr*1.1, d.color||'#A07050', d.hair||'#664422', 'down', 0);
+
+    const tx = bx+20+pr*2+14;
+    const maxW = bw - (tx-bx) - 24;
+
+    // Name badge
+    ctx.fillStyle='rgba(80,55,20,0.7)';
+    const nameW = ctx.measureText(d.name).width + 20;
+    ctx.beginPath(); ctx.roundRect(tx, by+14, nameW, 22, 11); ctx.fill();
+    ctx.fillStyle='#E8C850'; ctx.font='bold 14px "Segoe UI", sans-serif';
+    ctx.fillText(d.name, tx+10, by+29);
+
+    // Text with word-wrap
+    ctx.fillStyle='#F5E6D3'; ctx.font='14px "Segoe UI", sans-serif';
     const line = d.lines[d.index]||'';
-    // Word wrap
     const words = line.split(' ');
-    let ly = by+55, lx = bx+20, maxW = bw-40;
-    let currentLine = '';
+    let ly = by+56, lx = tx, currentLine = '';
     for (const word of words) {
         const test = currentLine + (currentLine?' ':'') + word;
         if (ctx.measureText(test).width > maxW && currentLine) {
             ctx.fillText(currentLine, lx, ly);
-            ly += 22; currentLine = word;
-        } else {
-            currentLine = test;
-        }
+            ly += 21; currentLine = word;
+        } else { currentLine = test; }
     }
     if (currentLine) ctx.fillText(currentLine, lx, ly);
-    // Continue indicator
-    ctx.fillStyle='rgba(245,230,211,0.5)';
-    ctx.font='12px sans-serif';
-    const ctxt = d.index < d.lines.length-1 ? '[Espace] Suivant...' : '[Espace] Fermer';
-    ctx.fillText(ctxt, bx+bw-160, by+bh-15);
+
+    // Blinking cursor at end of last line
+    const cursor = Math.floor(G.animTime*2)%2===0 ? '▌' : '';
+    if (cursor) {
+        ctx.fillStyle='rgba(245,230,211,0.7)';
+        ctx.fillText(cursor, lx+ctx.measureText(currentLine).width+2, ly);
+    }
+
+    // Continue prompt — animated bounce
+    const bounce = Math.sin(G.animTime*3)*2;
+    ctx.fillStyle='rgba(245,230,211,0.55)';
+    ctx.font='11px "Segoe UI", sans-serif';
+    const ctxt = d.index < d.lines.length-1 ? '[ Espace ] Suivant ▶' : '[ Espace ] Fermer ✕';
+    ctx.fillText(ctxt, bx+bw-185, by+bh-14+bounce);
 };
 
 G.renderMenu = function() {
@@ -763,11 +838,11 @@ G.renderMenu = function() {
     ctx.textAlign='center';
     let title='';
     switch(ui.menu) {
-        case 'inventory': title='Inventaire'; break;
-        case 'quests': title='Quetes'; break;
-        case 'build': title='Construire'; break;
-        case 'garden': title='Potager'; break;
-        case 'map': title='Carte des Communes'; break;
+        case 'inventory': title='✦ Inventaire'; break;
+        case 'quests': title='✦ Quêtes'; break;
+        case 'build': title='✦ Construire'; break;
+        case 'garden': title='✦ Potager'; break;
+        case 'map': title='✦ Carte des Communes'; break;
     }
     ctx.fillStyle='#E8C850'; ctx.font='bold 22px "Segoe UI", sans-serif';
     ctx.fillText(title, G.W/2, my+35);
@@ -819,7 +894,7 @@ G.renderMenu = function() {
             }
             ctx.fillStyle = done ? '#88CC66' : '#FFD700';
             ctx.font='bold 16px sans-serif';
-            ctx.fillText((done?'[OK] ':'')+(qd?'★ '+qd.name+' ★':'Fete au Village'), contentX, contentY+20);
+            ctx.fillText((done?'✓ ':'')+(qd?'★ '+qd.name+' ★':'Fête au Village'), contentX, contentY+20);
             ctx.fillStyle = done ? '#88AA66' : '#FFF';
             ctx.font='12px sans-serif';
             ctx.fillText(qd?qd.desc:'', contentX+20, contentY+34);
@@ -836,7 +911,7 @@ G.renderMenu = function() {
             // Legumes
             ctx.fillStyle = cond.veggies ? '#88CC66' : '#E8C850';
             ctx.font = 'bold 14px sans-serif';
-            ctx.fillText((cond.veggies ? '[OK] ' : '[ ] ') + 'Ramasser 3 de chaque legume', contentX, subY);
+            ctx.fillText((cond.veggies ? '✓ ' : '○ ') + 'Ramasser 3 de chaque légume', contentX, subY);
 
             ctx.font = '12px sans-serif';
             let vegRow = 0;
@@ -856,7 +931,7 @@ G.renderMenu = function() {
             const invitedCount = s.feteInvited.filter(id => id !== 'maire').length;
             ctx.fillStyle = cond.npcs ? '#88CC66' : '#E8C850';
             ctx.font = 'bold 14px sans-serif';
-            ctx.fillText((cond.npcs ? '[OK] ' : '[ ] ') + `Inviter les habitants (${invitedCount}/${invitableNpcs.length})`, contentX, npcY);
+            ctx.fillText((cond.npcs ? '✓ ' : '○ ') + `Inviter les habitants (${invitedCount}/${invitableNpcs.length})`, contentX, npcY);
 
             // Liste des NPCs invites (sans le maire)
             ctx.font = '12px sans-serif';
@@ -875,7 +950,7 @@ G.renderMenu = function() {
             const maireReady = cond.veggies && cond.npcs;
             ctx.fillStyle = maireReady ? '#88CC66' : (done ? '#88CC66' : '#888');
             ctx.font = 'bold 14px sans-serif';
-            ctx.fillText((done ? '[OK] ' : '[ ] ') + 'Parler au Maire pour lancer la fete', contentX, maireY);
+            ctx.fillText((done ? '✓ ' : '○ ') + 'Parler au Maire pour lancer la fête', contentX, maireY);
         } else {
             // Affichage normal des quetes
             const nonFinal = s.quests.filter(q => { const qd=DATA.QUESTS.find(x=>x.id===q.id); return qd&&!qd.isFinal; });
@@ -904,7 +979,7 @@ G.renderMenu = function() {
                     ctx.fillRect(contentX-5,iy-8,contentW,36);
                     ctx.fillStyle = done?'#88CC66':(isFinal?'#888':'#E8C850');
                     ctx.font='bold 14px sans-serif';
-                    ctx.fillText((done?'[OK] ':'[ ] ')+qd.name, contentX, iy+8);
+                    ctx.fillText((done?'✓ ':'○ ')+qd.name, contentX, iy+8);
                     ctx.fillStyle = done?'#88AA66':'#C4A882';
                     ctx.font='12px sans-serif';
                     ctx.fillText(qd.desc, contentX+20, iy+24);
@@ -998,40 +1073,82 @@ G.renderMenu = function() {
     }
 
     if (ui.menu==='map') {
-        // Draw a minimap of all communes
-        const mapCx=G.W/2, mapCy=G.H/2+10, scale=5.5;
-        // Background
+        const mapCx=G.W/2, mapCy=G.H/2+14, scale=5.5;
         const sc2 = DATA.SEASON_COLORS[s.season];
-        ctx.fillStyle=sc2.grass;
+        // Map background panel
+        ctx.fillStyle = sc2.grass;
         ctx.beginPath(); ctx.roundRect(mx+20,my+50,mw-40,mh-70,8); ctx.fill();
+        ctx.strokeStyle='rgba(196,168,130,0.3)'; ctx.lineWidth=1;
+        ctx.beginPath(); ctx.roundRect(mx+20,my+50,mw-40,mh-70,8); ctx.stroke();
+
+        // Commune road connections (draw first, behind dots)
+        const communeList = Object.entries(DATA.COMMUNES);
+        ctx.strokeStyle='rgba(180,150,100,0.35)'; ctx.lineWidth=1.5; ctx.setLineDash([4,5]);
+        for (let i=0;i<communeList.length;i++) {
+            for (let j=i+1;j<communeList.length;j++) {
+                const [,ca]=communeList[i], [,cb]=communeList[j];
+                const dist2 = G.dist(ca.cx,ca.cy,cb.cx,cb.cy);
+                if (dist2 < 35) { // draw path between close communes
+                    const ax=mapCx+(ca.cx-DATA.MAP_W/2)*scale, ay=mapCy+(ca.cy-DATA.MAP_H/2)*scale;
+                    const bx2=mapCx+(cb.cx-DATA.MAP_W/2)*scale, by2=mapCy+(cb.cy-DATA.MAP_H/2)*scale;
+                    ctx.beginPath(); ctx.moveTo(ax,ay); ctx.lineTo(bx2,by2); ctx.stroke();
+                }
+            }
+        }
+        ctx.setLineDash([]);
+
         // River
-        ctx.strokeStyle='#5B9BD5'; ctx.lineWidth=3;
+        ctx.strokeStyle='#5B9BD5'; ctx.lineWidth=3.5;
         ctx.beginPath();
         ctx.moveTo(mapCx+41*scale-DATA.MAP_W/2*scale, mapCy+0*scale-DATA.MAP_H/2*scale);
         ctx.lineTo(mapCx+40*scale-DATA.MAP_W/2*scale, mapCy+60*scale-DATA.MAP_H/2*scale);
         ctx.stroke();
+
         // Communes
         for (const [k,c] of Object.entries(DATA.COMMUNES)) {
             const cx2 = mapCx+(c.cx-DATA.MAP_W/2)*scale;
             const cy2 = mapCy+(c.cy-DATA.MAP_H/2)*scale;
             const visited = s.visitedCommunes.includes(k);
-            ctx.fillStyle = visited ? c.color : '#666';
-            ctx.beginPath(); ctx.arc(cx2,cy2,12,0,Math.PI*2); ctx.fill();
-            ctx.strokeStyle='#333'; ctx.lineWidth=1;
-            ctx.beginPath(); ctx.arc(cx2,cy2,12,0,Math.PI*2); ctx.stroke();
-            ctx.fillStyle=visited?'#FFF':'#999'; ctx.font='bold 10px sans-serif'; ctx.textAlign='center';
+            // Drop shadow
+            ctx.fillStyle='rgba(0,0,0,0.25)';
+            ctx.beginPath(); ctx.arc(cx2+1,cy2+2,13,0,Math.PI*2); ctx.fill();
+            ctx.fillStyle = visited ? c.color : '#555';
+            ctx.beginPath(); ctx.arc(cx2,cy2,13,0,Math.PI*2); ctx.fill();
+            // Glow ring for visited
+            if (visited) {
+                ctx.strokeStyle=c.color; ctx.lineWidth=2; ctx.globalAlpha=0.35;
+                ctx.beginPath(); ctx.arc(cx2,cy2,17,0,Math.PI*2); ctx.stroke();
+                ctx.globalAlpha=1;
+            }
+            ctx.strokeStyle = visited?'rgba(255,255,255,0.5)':'#444'; ctx.lineWidth=1;
+            ctx.beginPath(); ctx.arc(cx2,cy2,13,0,Math.PI*2); ctx.stroke();
+            ctx.fillStyle=visited?'#FFF':'#888'; ctx.font='bold 9px sans-serif'; ctx.textAlign='center';
             ctx.fillText(c.name.split(' ')[0].split('-')[0], cx2, cy2+3);
+            // Unvisited label
+            if (!visited) {
+                ctx.fillStyle='rgba(180,150,100,0.6)'; ctx.font='8px sans-serif';
+                ctx.fillText('?', cx2, cy2+3);
+            }
         }
-        // Player position
+
+        // Player marker with pulsing ring
         const ppx = mapCx+(s.player.x-DATA.MAP_W/2)*scale;
         const ppy = mapCy+(s.player.y-DATA.MAP_H/2)*scale;
-        ctx.fillStyle='#FF4444';
+        const pulse2 = 5+Math.sin(G.animTime*3)*2;
+        ctx.strokeStyle='rgba(255,80,80,0.45)'; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.arc(ppx,ppy,pulse2,0,Math.PI*2); ctx.stroke();
+        ctx.fillStyle='#FF5555';
         ctx.beginPath(); ctx.arc(ppx,ppy,5,0,Math.PI*2); ctx.fill();
         ctx.strokeStyle='#FFF'; ctx.lineWidth=1.5;
         ctx.beginPath(); ctx.arc(ppx,ppy,5,0,Math.PI*2); ctx.stroke();
+
         // Legend
-        ctx.textAlign='left'; ctx.fillStyle='#C4A882'; ctx.font='12px sans-serif';
-        ctx.fillText(`Communes visitees: ${s.visitedCommunes.length}/8`, contentX, my+mh-20);
+        ctx.textAlign='left';
+        const visited = s.visitedCommunes.length;
+        ctx.fillStyle=visited>=8?'#88CC66':'#C4A882'; ctx.font='12px "Segoe UI", sans-serif';
+        ctx.fillText(`Communes visitées: ${visited}/8  ${visited>=8?'✓':''}`, contentX, my+mh-20);
+        ctx.fillStyle='rgba(196,168,130,0.5)'; ctx.font='11px sans-serif';
+        ctx.fillText('● Vous   ○ Non visitée', contentX+220, my+mh-20);
         ctx.textAlign='left';
     }
 
@@ -1056,13 +1173,16 @@ G.renderNotification = function() {
 
 G.renderHUD = function() {
     const s = G.state;
-    document.getElementById('hud-commune').textContent = G.getCommuneName(s.player.x, s.player.y);
-    const seasonNames = {printemps:'Printemps',ete:'Ete',automne:'Automne',hiver:'Hiver'};
-    document.getElementById('hud-season').textContent = seasonNames[s.season]||s.season;
-    document.getElementById('hud-turn').textContent = `Tour ${s.turn}`;
-    document.getElementById('hud-happiness').textContent = `Bonheur: ${s.happiness}`;
-    document.getElementById('hud-villagers').textContent = `Habitants: ${s.villagers}/${DATA.GOAL_VILLAGERS}`;
-    document.getElementById('hud-hint').textContent = G.getVillagerHint();
+    const communeName = G.getCommuneName(s.player.x, s.player.y);
+    document.getElementById('hud-commune').textContent = '📍 ' + communeName;
+    const seasonIcons = {printemps:'🌱',ete:'☀',automne:'🍂',hiver:'❄'};
+    const seasonNames = {printemps:'Printemps',ete:'Été',automne:'Automne',hiver:'Hiver'};
+    document.getElementById('hud-season').textContent = (seasonIcons[s.season]||'') + ' ' + (seasonNames[s.season]||s.season);
+    document.getElementById('hud-turn').textContent = 'Tour ' + s.turn;
+    document.getElementById('hud-happiness').textContent = '♥ ' + s.happiness;
+    document.getElementById('hud-villagers').textContent = '⌂ ' + s.villagers + '/' + DATA.GOAL_VILLAGERS;
+    const hint = G.getVillagerHint();
+    document.getElementById('hud-hint').textContent = hint ? '💬 ' + hint : '';
 };
 
 G.renderVictoryScreen = function() {
