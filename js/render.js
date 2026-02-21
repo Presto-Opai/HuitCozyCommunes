@@ -716,20 +716,51 @@ G.renderGame = function() {
         if (npc.x<startX-1||npc.x>endX+1||npc.y<startY-1||npc.y>endY+1) continue;
         const sx = (npc.x-startX)*ts+offX;
         const sy = (npc.y-startY)*ts+offY;
+        const rel = s.relationships ? (s.relationships[npc.id]||{level:0}) : {level:0};
+
+        // Friendship glow under NPC feet
+        if (rel.level >= 2) {
+            const glowAlpha = 0.12 + Math.sin(G.animTime*2)*0.06;
+            const gc = rel.level >= 3 ? `rgba(255,215,0,${glowAlpha})` : `rgba(255,130,160,${glowAlpha})`;
+            ctx.fillStyle = gc;
+            ctx.beginPath(); ctx.ellipse(sx+ts/2, sy+ts*0.9, ts*0.42, ts*0.12, 0, 0, Math.PI*2); ctx.fill();
+        }
+
         G.drawChar(ctx, sx, sy-4, ts, npc.color, npc.hair, 'down', 0);
+
         // Name tag
-        ctx.fillStyle='rgba(42,31,20,0.75)';
         ctx.font='9px sans-serif'; ctx.textAlign='center';
         const nm = npc.name.split(' ')[0];
         const tw = ctx.measureText(nm).width;
-        ctx.beginPath(); ctx.roundRect(sx+ts/2-tw/2-4, sy-14, tw+8, 14, 3); ctx.fill();
-        ctx.fillStyle='#F5E6D3';
+        ctx.fillStyle = rel.level >= 3 ? 'rgba(80,55,10,0.85)' : 'rgba(42,31,20,0.75)';
+        ctx.beginPath(); ctx.roundRect(sx+ts/2-tw/2-4, sy-15, tw+8, 14, 7); ctx.fill();
+        ctx.fillStyle = rel.level >= 2 ? '#FFD9A0' : '#F5E6D3';
         ctx.fillText(nm, sx+ts/2, sy-5);
         ctx.textAlign='left';
-        // Quest indicator
+
+        // Quest indicator: bouncing glowing !
         if (!npc.talked && npc.quest) {
-            ctx.fillStyle='#FFD700'; ctx.font='bold 14px sans-serif'; ctx.textAlign='center';
-            ctx.fillText('!', sx+ts/2, sy-18);
+            const bounce = Math.sin(G.animTime*3)*3;
+            const pulse = 0.5+Math.sin(G.animTime*4)*0.3;
+            // Glow circle
+            ctx.fillStyle = `rgba(255,215,0,${pulse*0.35})`;
+            ctx.beginPath(); ctx.arc(sx+ts/2, sy-22+bounce, 10, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle='#FFD700'; ctx.font='bold 15px sans-serif'; ctx.textAlign='center';
+            ctx.shadowColor='rgba(255,200,0,0.8)'; ctx.shadowBlur=8;
+            ctx.fillText('!', sx+ts/2, sy-17+bounce);
+            ctx.shadowBlur=0; ctx.textAlign='left';
+        }
+
+        // Friendship heart floating above (level 1+)
+        if (rel.level >= 1 && npc.talked) {
+            const fhOff = Math.sin(G.animTime*1.8 + npc.x)*3;
+            const fAlpha = 0.55 + Math.sin(G.animTime*2)*0.2;
+            const heartChar = rel.level >= 3 ? '♥' : rel.level >= 2 ? '♥' : '♡';
+            const heartCol = rel.level >= 3 ? `rgba(255,215,0,${fAlpha})` : `rgba(255,110,140,${fAlpha})`;
+            ctx.fillStyle = heartCol;
+            ctx.font = rel.level >= 2 ? 'bold 11px sans-serif' : '10px sans-serif';
+            ctx.textAlign='center';
+            ctx.fillText(heartChar, sx+ts*0.82, sy-20+fhOff);
             ctx.textAlign='left';
         }
     }
@@ -743,7 +774,14 @@ G.renderGame = function() {
     for (const p of s.particles) {
         ctx.globalAlpha = p.life;
         ctx.fillStyle = p.color;
-        ctx.beginPath(); ctx.arc(p.sx, p.sy, p.size, 0, Math.PI*2); ctx.fill();
+        if (p.isHeart) {
+            ctx.font = `bold ${Math.round(p.size*2.2)}px sans-serif`;
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText('♥', p.sx, p.sy);
+            ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+        } else {
+            ctx.beginPath(); ctx.arc(p.sx, p.sy, p.size, 0, Math.PI*2); ctx.fill();
+        }
     }
     ctx.globalAlpha = 1;
 
@@ -776,11 +814,20 @@ G.renderDialogue = function() {
 
     // Portrait circle
     const pr=32, pcx=bx+20+pr, pcy=by+bh/2;
+    // Glow ring based on friendship
+    const friendship = d.friendship || 0;
+    if (friendship > 0) {
+        const friendColors = ['','rgba(255,150,170,0.5)','rgba(255,100,140,0.6)','rgba(255,215,0,0.7)'];
+        ctx.strokeStyle = friendColors[friendship] || 'transparent';
+        ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.arc(pcx,pcy,pr+5,0,Math.PI*2); ctx.stroke();
+    }
     ctx.fillStyle='rgba(60,40,20,0.8)';
     ctx.beginPath(); ctx.arc(pcx,pcy,pr,0,Math.PI*2); ctx.fill();
-    ctx.strokeStyle='#C4A882'; ctx.lineWidth=1.5;
+    ctx.strokeStyle = friendship >= 2 ? '#FFB3C1' : '#C4A882';
+    ctx.lineWidth=1.5;
     ctx.beginPath(); ctx.arc(pcx,pcy,pr,0,Math.PI*2); ctx.stroke();
-    // Tiny character silhouette in portrait
+    // Tiny character in portrait
     G.drawChar(ctx, pcx-pr*0.55, pcy-pr*0.9, pr*1.1, d.color||'#A07050', d.hair||'#664422', 'down', 0);
 
     const tx = bx+20+pr*2+14;
@@ -789,9 +836,18 @@ G.renderDialogue = function() {
     // Name badge
     ctx.fillStyle='rgba(80,55,20,0.7)';
     const nameW = ctx.measureText(d.name).width + 20;
-    ctx.beginPath(); ctx.roundRect(tx, by+14, nameW, 22, 11); ctx.fill();
+    ctx.beginPath(); ctx.roundRect(tx, by+12, nameW, 22, 11); ctx.fill();
     ctx.fillStyle='#E8C850'; ctx.font='bold 14px "Segoe UI", sans-serif';
-    ctx.fillText(d.name, tx+10, by+29);
+    ctx.fillText(d.name, tx+10, by+27);
+
+    // Friendship hearts
+    if (friendship > 0) {
+        const heartColors = ['','#FF6B8A','#FF4466','#FFD700'];
+        ctx.font = '13px sans-serif';
+        const hearts = '♥'.repeat(friendship) + '♡'.repeat(3-friendship);
+        ctx.fillStyle = heartColors[friendship] || '#FF6B8A';
+        ctx.fillText(hearts, tx + nameW + 14, by+27);
+    }
 
     // Text with word-wrap
     ctx.fillStyle='#F5E6D3'; ctx.font='14px "Segoe UI", sans-serif';

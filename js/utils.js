@@ -294,6 +294,7 @@ G.defaultState = function() {
             cropSelect: 0,
         },
         particles: [],
+        relationships: {},
         feteActive: false,
         feteInvited: [],
         fetePhase: null,
