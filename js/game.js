@@ -341,7 +341,7 @@ G.loadAndContinue = function() {
                 y: G.state.player.y * G.TILE - G.H/2,
             };
         }
-        G.notify('Partie chargee!', 3);
+        G.notify('Partie chargée !', 3);
     } else {
         G.startNewGame();
     }

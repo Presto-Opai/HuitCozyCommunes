@@ -57,36 +57,66 @@ G.generateMap = function() {
             const n1 = G.noise(x*0.08, y*0.08);
             const n2 = G.noise(x*0.15+50, y*0.15+50);
             const n3 = G.noise(x*0.25+100, y*0.25+100);
+            const n4 = G.noise(x*0.04+200, y*0.04+200); // large scale variation
 
             let tile = T.GRASS;
-            // Commune-specific terrain
+            // Commune-specific terrain — denser and more varied
             switch(cd.terrain) {
                 case 'forest':
-                    tile = n1>0.35 ? T.TREE : (n2>0.5 ? T.TALL_GRASS : (n3>0.85 ? T.FLOWERS : T.GRASS));
-                    if (n1>0.6) tile = T.DENSE_TREE;
+                    if (n1>0.58) tile = T.DENSE_TREE;
+                    else if (n1>0.3) tile = T.TREE;
+                    else if (n2>0.55) tile = T.TALL_GRASS;
+                    else if (n3>0.78) tile = T.FLOWERS;
+                    else if (n3>0.65) tile = T.BUSH;
+                    else tile = T.GRASS;
                     break;
                 case 'deep_forest':
-                    tile = n1>0.25 ? T.TREE : (n2>0.4 ? T.TALL_GRASS : T.GRASS);
-                    if (n1>0.5) tile = T.DENSE_TREE;
-                    if (n3>0.9) tile = T.BUSH;
+                    if (n1>0.45) tile = T.DENSE_TREE;
+                    else if (n1>0.2) tile = T.TREE;
+                    else if (n2>0.38) tile = T.TALL_GRASS;
+                    else if (n3>0.82) tile = T.BUSH;
+                    else tile = T.GRASS;
                     break;
                 case 'farmland':
-                    tile = n1>0.55 ? T.WHEAT : (n2>0.7 ? T.TREE : (n3>0.8 ? T.FLOWERS : T.GRASS));
+                    if (n1>0.52) tile = T.WHEAT;
+                    else if (n4>0.62 && n2>0.55) tile = T.TREE;
+                    else if (n3>0.75) tile = T.FLOWERS;
+                    else if (n2>0.6) tile = T.TALL_GRASS;
+                    else tile = T.GRASS;
                     break;
                 case 'meadow':
-                    tile = n3>0.6 ? T.FLOWERS : (n2>0.7 ? T.BUSH : (n1>0.65 ? T.TALL_GRASS : T.GRASS));
+                    if (n3>0.52) tile = T.FLOWERS;
+                    else if (n2>0.62) tile = T.BUSH;
+                    else if (n1>0.6) tile = T.TALL_GRASS;
+                    else if (n4>0.72) tile = T.FLOWERS;
+                    else tile = T.GRASS;
                     break;
                 case 'highland':
-                    tile = n1>0.5 ? T.ROCK : (n2>0.55 ? T.TREE : (n3>0.7 ? T.TALL_GRASS : T.GRASS));
+                    if (n1>0.48) tile = T.ROCK;
+                    else if (n2>0.52) tile = T.TREE;
+                    else if (n3>0.65) tile = T.TALL_GRASS;
+                    else if (n4>0.78) tile = T.BUSH;
+                    else tile = T.GRASS;
                     break;
                 case 'rocky':
-                    tile = n1>0.45 ? T.ROCK : (n2>0.6 ? T.TREE : (n3>0.75 ? T.BUSH : T.GRASS));
+                    if (n1>0.42) tile = T.ROCK;
+                    else if (n2>0.58) tile = T.TREE;
+                    else if (n3>0.7) tile = T.BUSH;
+                    else if (n4>0.75) tile = T.TALL_GRASS;
+                    else tile = T.GRASS;
                     break;
                 case 'valley':
-                    tile = n2>0.65 ? T.TALL_GRASS : (n3>0.75 ? T.FLOWERS : (n1>0.7 ? T.TREE : T.GRASS));
+                    if (n2>0.6) tile = T.TALL_GRASS;
+                    else if (n3>0.68) tile = T.FLOWERS;
+                    else if (n1>0.65) tile = T.TREE;
+                    else if (n4>0.7) tile = T.BUSH;
+                    else tile = T.GRASS;
                     break;
                 case 'village':
-                    tile = n1>0.65 ? T.TREE : (n3>0.8 ? T.FLOWERS : T.GRASS);
+                    if (n1>0.62) tile = T.TREE;
+                    else if (n3>0.75) tile = T.FLOWERS;
+                    else if (n4>0.7 && n2>0.55) tile = T.BUSH;
+                    else tile = T.GRASS;
                     break;
             }
             map[y][x] = tile;
@@ -134,12 +164,18 @@ G.addPaths = function(map) {
         if (c === athis) continue;
         G.drawPath(map, athis.cx, athis.cy, c.cx, c.cy);
     }
-    // A few extra connections
+    // Extra connections between neighbours for more Jacquays-style exploration
     G.drawPath(map, DATA.COMMUNES.carneille.cx, DATA.COMMUNES.carneille.cy,
                DATA.COMMUNES.ronfeugerai.cx, DATA.COMMUNES.ronfeugerai.cy);
     G.drawPath(map, DATA.COMMUNES.breel.cx, DATA.COMMUNES.breel.cy,
                DATA.COMMUNES.tourailles.cx, DATA.COMMUNES.tourailles.cy);
     G.drawPath(map, DATA.COMMUNES.segrie.cx, DATA.COMMUNES.segrie.cy,
+               DATA.COMMUNES.ndrocher.cx, DATA.COMMUNES.ndrocher.cy);
+    G.drawPath(map, DATA.COMMUNES.taillebois.cx, DATA.COMMUNES.taillebois.cy,
+               DATA.COMMUNES.segrie.cx, DATA.COMMUNES.segrie.cy);
+    G.drawPath(map, DATA.COMMUNES.ronfeugerai.cx, DATA.COMMUNES.ronfeugerai.cy,
+               DATA.COMMUNES.breel.cx, DATA.COMMUNES.breel.cy);
+    G.drawPath(map, DATA.COMMUNES.tourailles.cx, DATA.COMMUNES.tourailles.cy,
                DATA.COMMUNES.ndrocher.cx, DATA.COMMUNES.ndrocher.cy);
 };
 
@@ -223,6 +259,36 @@ G.addVillages = function(map) {
 
     // Well at Athis
     if (ac.cy+1<DATA.MAP_H && ac.cx+3<DATA.MAP_W) map[ac.cy+1][ac.cx+3] = T.WELL;
+
+    // Fishing platform under Robert le Pêcheur at Ronfeugerai
+    const rf = DATA.COMMUNES.ronfeugerai;
+    const robertX = rf.cx + 1, robertY = rf.cy + 2; // matches NPC rx:1, ry:2
+    for (let dx=-1; dx<=1; dx++) {
+        const px = robertX + dx;
+        if (px >= 0 && px < DATA.MAP_W && robertY >= 0 && robertY < DATA.MAP_H) {
+            map[robertY][px] = T.BRIDGE; // wooden fishing dock
+        }
+    }
+    if (robertY+1 < DATA.MAP_H) {
+        map[robertY+1][robertX] = T.BRIDGE; // extend dock one tile south
+    }
+
+    // Auberge building for Jeanne (midpoint Athis→Ronfeugerai)
+    const jeanneX = ac.cx + 3, jeanneY = ac.cy - 12; // matches NPC rx:3, ry:-12
+    G.placeBuilding(map, jeanneX - 1, jeanneY - 2, 3, 2);
+    // Clear area around auberge
+    for (let dy=-1; dy<=1; dy++) {
+        for (let dx=-2; dx<=2; dx++) {
+            const tx=jeanneX+dx, ty=jeanneY+dy;
+            if (tx>=0&&tx<DATA.MAP_W&&ty>=0&&ty<DATA.MAP_H) {
+                if (map[ty][tx]===T.TREE||map[ty][tx]===T.DENSE_TREE||map[ty][tx]===T.ROCK) {
+                    map[ty][tx] = T.GRASS;
+                }
+            }
+        }
+    }
+    // Small path to auberge from main road
+    if (jeanneY+1 < DATA.MAP_H) map[jeanneY+1][jeanneX] = T.PATH;
 
     // Chapel at ND-Rocher
     const nd = DATA.COMMUNES.ndrocher;
