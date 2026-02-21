@@ -249,8 +249,11 @@ G.update = function(dt) {
         if ((dx||dy) && !s.ui.menu && !s.ui.dialogue) {
             G.movePlayer(dx, dy);
             G.lastMove = now;
+            G.playerBounce = 1; // trigger bounce
         }
     }
+    // Decay bounce
+    if (G.playerBounce > 0) G.playerBounce = Math.max(0, G.playerBounce - 6 * (1/60));
 
     G.updateCamera();
     G.updateWildlife(dt);
@@ -324,6 +327,7 @@ G.loadAndContinue = function() {
         if (!G.state.feteInvited) G.state.feteInvited = [];
         if (G.state.fetePhase === undefined) G.state.fetePhase = null;
         if (G.state.feteTimer === undefined) G.state.feteTimer = 0;
+        if (!G.state.relationships) G.state.relationships = {};
         // Regenerate wildlife
         G.spawnWildlife();
         // Re-place resources if missing

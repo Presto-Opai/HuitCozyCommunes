@@ -289,6 +289,91 @@ G.checkFinalQuestUnlock = function() {
     }
 };
 
+// --- Relationship system ---
+G.getFriendship = function(npcId) {
+    const rel = G.state.relationships;
+    if (!rel[npcId]) rel[npcId] = { level: 0, trades: 0, giftGiven: false };
+    return rel[npcId];
+};
+
+G.raiseFriendship = function(npc) {
+    const s = G.state;
+    const rel = G.getFriendship(npc.id);
+    rel.trades++;
+    const prev = rel.level;
+    if (rel.trades >= 8) rel.level = 3;
+    else if (rel.trades >= 4) rel.level = 2;
+    else if (rel.trades >= 1) rel.level = 1;
+
+    // Emit heart particles at NPC position
+    G.emitHearts(npc.x, npc.y);
+
+    // Friendship level-up gift
+    if (rel.level > prev) {
+        const labels = ['','Amis!','Bons amis!','Meilleurs amis!'];
+        G.notify(`${npc.name.split(' ')[0]}: ${labels[rel.level]}`, 4);
+        if (rel.level === 2 && !rel.giftGiven && npc.friendship_gift) {
+            rel.giftGiven = true;
+            for (const [k,v] of Object.entries(npc.friendship_gift)) G.addItem(k, v);
+            const giftStr = Object.entries(npc.friendship_gift)
+                .map(([k,v]) => `${DATA.ITEMS[k]?.name||k} x${v}`).join(', ');
+            // Schedule a special dialogue after current one (queue via setTimeout trick)
+            setTimeout(() => {
+                G.state.ui.dialogue = {
+                    name: npc.name,
+                    lines: [
+                        'Vous savez... vous êtes vraiment quelqu\'un de bien.',
+                        'Tenez, un petit cadeau pour vous remercier de votre amitié.',
+                        `[Cadeau d'amitié: ${giftStr}]`,
+                    ],
+                    index: 0, npcId: npc.id,
+                    color: npc.color, hair: npc.hair,
+                    friendship: rel.level,
+                };
+            }, 800);
+        }
+    }
+};
+
+G.emitHearts = function(wx, wy) {
+    const s = G.state;
+    if (!s.camera) return;
+    const cam = s.camera;
+    const ts = G.TILE;
+    const sx = (wx - cam.x/ts) * ts + ts/2;
+    const sy = (wy - cam.y/ts) * ts;
+    const colors = ['#FF6B8A','#FF9BAA','#FFB3C1','#FFD700'];
+    for (let i = 0; i < 7; i++) {
+        s.particles.push({
+            sx: sx + (Math.random()-0.5)*22,
+            sy: sy - 5,
+            vx: (Math.random()-0.5)*18,
+            vy: -(25+Math.random()*20),
+            life: 1.0,
+            decay: 0.55 + Math.random()*0.35,
+            size: 5+Math.random()*4,
+            color: colors[Math.floor(Math.random()*colors.length)],
+            isHeart: true,
+        });
+    }
+};
+
+// --- Pick NPC re-visit dialogue ---
+G.pickRevisitLine = function(npc) {
+    const s = G.state;
+    // Seasonal line first
+    if (npc.seasonal && npc.seasonal[s.season]) {
+        if (Math.random() < 0.45) return npc.seasonal[s.season];
+    }
+    // Quips rotation
+    if (npc.quips && npc.quips.length) {
+        const rel = G.getFriendship(npc.id);
+        const idx = rel.trades % npc.quips.length;
+        return npc.quips[idx];
+    }
+    return npc.dialogue[0] || 'Bonjour!';
+};
+
 // --- NPC interaction (avec echange) ---
 G.interactNPC = function(npc) {
     const s = G.state;
@@ -405,18 +490,19 @@ G.interactNPC = function(npc) {
         // Donner les items AVANT le dialogue pour qu'ils soient dans l'inventaire
         if (npc.gives) {
             for (const [k,v] of Object.entries(npc.gives)) G.addItem(k,v);
-            // Ajouter une ligne de cadeau au dialogue
             const giftStr = Object.entries(npc.gives).map(([k,v]) => `${DATA.ITEMS[k]?.name||k} x${v}`).join(', ');
             s.ui.dialogue = {
                 name: npc.name,
-                lines: [...npc.dialogue, `[Recu: ${giftStr}]`],
+                lines: [...npc.dialogue, `✓ Cadeau reçu: ${giftStr}`],
                 index: 0, npcId: npc.id,
+                color: npc.color, hair: npc.hair, friendship: 0,
             };
         } else {
             s.ui.dialogue = {
                 name: npc.name,
                 lines: [...npc.dialogue],
                 index: 0, npcId: npc.id,
+                color: npc.color, hair: npc.hair, friendship: 0,
             };
         }
         npc.talked = true;
@@ -424,7 +510,10 @@ G.interactNPC = function(npc) {
         return;
     }
 
-    // Visites suivantes : proposer l'echange si disponible
+    // Visites suivantes : proposer l'échange si disponible
+    const rel = G.getFriendship(npc.id);
+    const greeting = G.pickRevisitLine(npc);
+
     if (npc.trade) {
         const t = npc.trade;
         if (G.hasItem(t.want, t.wantQty)) {
@@ -435,26 +524,32 @@ G.interactNPC = function(npc) {
                 (t.give2 ? ` + ${DATA.ITEMS[t.give2]?.name||t.give2} x${t.giveQty2}` : '');
             s.ui.dialogue = {
                 name: npc.name,
-                lines: [t.msg, `[Echange: -${DATA.ITEMS[t.want]?.name||t.want} x${t.wantQty} → +${gotStr}]`],
+                lines: [t.msg, `✓ Échange: −${DATA.ITEMS[t.want]?.name||t.want} ×${t.wantQty}  →  +${gotStr}`],
                 index: 0, npcId: npc.id,
+                color: npc.color, hair: npc.hair, friendship: rel.level,
             };
+            G.raiseFriendship(npc);
         } else {
             const wantName = DATA.ITEMS[t.want]?.name || t.want;
             const giveName = DATA.ITEMS[t.give]?.name || t.give;
+            const noTradeLines = [greeting];
+            noTradeLines.push(`Ramenez-moi ${t.wantQty} ${wantName} et je vous donnerai ${t.giveQty} ${giveName}!`);
             s.ui.dialogue = {
                 name: npc.name,
-                lines: [`Ramenez-moi ${t.wantQty} ${wantName} et je vous donnerai ${t.giveQty} ${giveName}!`],
+                lines: noTradeLines,
                 index: 0, npcId: npc.id,
+                color: npc.color, hair: npc.hair, friendship: rel.level,
             };
         }
         return;
     }
 
-    // Pas d'echange : juste re-saluer
+    // Pas d'échange : bavarder avec un quip
     s.ui.dialogue = {
         name: npc.name,
-        lines: [npc.dialogue[0] || 'Bonjour!'],
+        lines: [greeting],
         index: 0, npcId: npc.id,
+        color: npc.color, hair: npc.hair, friendship: rel.level,
     };
 };
 
@@ -548,7 +643,8 @@ G.updateParticles = function(dt) {
     for (let i=s.particles.length-1; i>=0; i--) {
         const p = s.particles[i];
         p.sx += p.vx*dt; p.sy += p.vy*dt;
-        p.vy += 15*dt;
+        // Hearts float up gently; other particles fall with gravity
+        p.vy += (p.isHeart ? 4 : 15) * dt;
         p.life -= p.decay*dt;
         if (p.life <= 0) s.particles.splice(i, 1);
     }

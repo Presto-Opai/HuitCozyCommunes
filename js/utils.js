@@ -7,6 +7,7 @@ const G = {
     canvas: null, ctx: null,
     state: null, keys: {}, mouse: {x:0,y:0,click:false},
     lastMove: 0, notifTimer: 0, animTime: 0,
+    playerBounce: 0,
 };
 
 // --- Math utilities ---
@@ -293,6 +294,7 @@ G.defaultState = function() {
             cropSelect: 0,
         },
         particles: [],
+        relationships: {},
         feteActive: false,
         feteInvited: [],
         fetePhase: null,
