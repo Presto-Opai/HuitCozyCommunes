@@ -8,7 +8,7 @@ body {
     align-items: center;
     height: 100vh;
     overflow: hidden;
-    font-family: 'Segoe UI', 'Arial', sans-serif;
+    font-family: 'Lora', Georgia, 'Times New Roman', serif;
 }
 
 #game-container {
@@ -35,7 +35,7 @@ body {
     width: 960px;
     height: 640px;
     display: block;
-    image-rendering: pixelated;
+    image-rendering: auto;
     cursor: default;
 }
 

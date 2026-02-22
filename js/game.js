@@ -403,9 +403,11 @@ G.cheatSkipToFete = function() {
 // --- Init ---
 G.init = function() {
     G.canvas = document.getElementById('game-canvas');
+    const dpr = window.devicePixelRatio || 1;
+    G.canvas.width = G.W * dpr;
+    G.canvas.height = G.H * dpr;
     G.ctx = G.canvas.getContext('2d');
-    G.canvas.width = G.W;
-    G.canvas.height = G.H;
+    G.ctx.scale(dpr, dpr);
 
     // Check roundRect support (polyfill for older browsers)
     if (!G.ctx.roundRect) {
