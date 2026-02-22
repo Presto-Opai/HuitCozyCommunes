@@ -590,6 +590,70 @@ G.drawBuildingSprite = function(ctx, sx, sy, s, type) {
             ctx.fillStyle='#BCA060'; ctx.fillRect(sx+s*0.79,sy+s*0.14,s*0.14,s*0.57);
             ctx.beginPath(); ctx.ellipse(sx+s*0.86,sy+s*0.14,s*0.07,s*0.04,0,0,Math.PI*2); ctx.fill();
             break;
+        case 'lavoir':
+            // Stone wash basin
+            ctx.fillStyle = '#A0A0A0';
+            ctx.fillRect(sx+s*0.1,sy+s*0.4,s*0.8,s*0.35);
+            ctx.fillStyle = '#5B9BD5';
+            ctx.fillRect(sx+s*0.15,sy+s*0.45,s*0.7,s*0.25);
+            ctx.fillStyle = 'rgba(255,255,255,0.25)';
+            ctx.beginPath(); ctx.ellipse(sx+s*0.4,sy+s*0.55,s*0.15,s*0.06,0,0,Math.PI*2); ctx.fill();
+            // Wooden frame
+            ctx.fillStyle = '#8B6E4E';
+            ctx.fillRect(sx+s*0.08,sy+s*0.25,s*0.06,s*0.5);
+            ctx.fillRect(sx+s*0.86,sy+s*0.25,s*0.06,s*0.5);
+            ctx.fillRect(sx+s*0.08,sy+s*0.22,s*0.84,s*0.06);
+            break;
+        case 'atelier':
+            // Workshop with tools
+            ctx.fillStyle = '#E0D0B8'; ctx.fillRect(sx+s*0.12,sy+s*0.38,s*0.76,s*0.47);
+            ctx.fillStyle = '#8B6E4E';
+            ctx.beginPath(); ctx.moveTo(sx+s*0.08,sy+s*0.42); ctx.lineTo(sx+s*0.5,sy+s*0.15); ctx.lineTo(sx+s*0.92,sy+s*0.42); ctx.fill();
+            ctx.fillStyle='#6A5040'; ctx.fillRect(sx+s*0.38,sy+s*0.6,s*0.24,s*0.25);
+            // Anvil/tools hint
+            ctx.fillStyle='#666'; ctx.fillRect(sx+s*0.2,sy+s*0.52,s*0.12,s*0.06);
+            ctx.fillRect(sx+s*0.23,sy+s*0.48,s*0.06,s*0.04);
+            break;
+        case 'marche':
+            // Covered market with pillars
+            ctx.fillStyle = '#C65D3E';
+            ctx.beginPath(); ctx.moveTo(sx+s*0.02,sy+s*0.38); ctx.lineTo(sx+s*0.5,sy+s*0.08); ctx.lineTo(sx+s*0.98,sy+s*0.38); ctx.fill();
+            // Pillars
+            ctx.fillStyle = '#E8D5C0';
+            ctx.fillRect(sx+s*0.12,sy+s*0.38,s*0.08,s*0.45);
+            ctx.fillRect(sx+s*0.42,sy+s*0.38,s*0.08,s*0.45);
+            ctx.fillRect(sx+s*0.72,sy+s*0.38,s*0.08,s*0.45);
+            // Stalls hint
+            ctx.fillStyle='#E8C850'; ctx.fillRect(sx+s*0.22,sy+s*0.58,s*0.18,s*0.1);
+            ctx.fillStyle='#FF6B8A'; ctx.fillRect(sx+s*0.54,sy+s*0.58,s*0.16,s*0.1);
+            break;
+        case 'ecole':
+            // School building
+            ctx.fillStyle = '#F0E8D8'; ctx.fillRect(sx+s*0.1,sy+s*0.32,s*0.8,s*0.53);
+            ctx.fillStyle = '#4A6FA5';
+            ctx.beginPath(); ctx.moveTo(sx+s*0.06,sy+s*0.36); ctx.lineTo(sx+s*0.5,sy+s*0.08); ctx.lineTo(sx+s*0.94,sy+s*0.36); ctx.fill();
+            ctx.fillStyle='#8B6E4E'; ctx.fillRect(sx+s*0.42,sy+s*0.6,s*0.16,s*0.25);
+            // Bell tower
+            ctx.fillStyle='#D4A574'; ctx.fillRect(sx+s*0.44,sy+s*0.12,s*0.12,s*0.2);
+            ctx.fillStyle='#E8C850';
+            ctx.beginPath(); ctx.arc(sx+s*0.5,sy+s*0.18,s*0.03,0,Math.PI*2); ctx.fill();
+            // Windows
+            ctx.fillStyle='#87CEEB';
+            ctx.fillRect(sx+s*0.16,sy+s*0.42,s*0.1,s*0.1);
+            ctx.fillRect(sx+s*0.74,sy+s*0.42,s*0.1,s*0.1);
+            break;
+        case 'pressoir':
+            // Cider press
+            ctx.fillStyle = '#D4B896'; ctx.fillRect(sx+s*0.1,sy+s*0.35,s*0.8,s*0.5);
+            ctx.fillStyle = '#7A5030';
+            ctx.beginPath(); ctx.moveTo(sx+s*0.06,sy+s*0.38); ctx.lineTo(sx+s*0.5,sy+s*0.12); ctx.lineTo(sx+s*0.94,sy+s*0.38); ctx.fill();
+            ctx.fillStyle='#6A4528'; ctx.fillRect(sx+s*0.35,sy+s*0.58,s*0.3,s*0.27);
+            // Barrel
+            ctx.fillStyle='#8B6E4E';
+            ctx.beginPath(); ctx.ellipse(sx+s*0.22,sy+s*0.68,s*0.08,s*0.12,0,0,Math.PI*2); ctx.fill();
+            ctx.strokeStyle='#5A3A10'; ctx.lineWidth=1;
+            ctx.beginPath(); ctx.ellipse(sx+s*0.22,sy+s*0.68,s*0.08,s*0.12,0,0,Math.PI*2); ctx.stroke();
+            break;
     }
 };
 
@@ -1318,7 +1382,7 @@ G.renderMenu = function() {
                 let hint = [];
                 if (b.requires.happiness) hint.push(`♥ ${b.requires.happiness}`);
                 if (b.requires.buildings) hint.push(`${b.requires.buildings} bâtiments`);
-                if (b.requires.built_one_of) hint.push(`après: ${b.requires.built_one_of.join('/')}`);
+                if (b.requires.built_one_of) hint.push(`après: ${b.requires.built_one_of.map(k => DATA.BUILDINGS[k]?.name || k).join(' / ')}`);
                 ctx.fillStyle = '#887766';
                 ctx.font = '10px "Lora", Georgia, serif';
                 ctx.fillText(`🔒 Débloque avec ${hint.join(', ')}`, contentX+20, curY+21);

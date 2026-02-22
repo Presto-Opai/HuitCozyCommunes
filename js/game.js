@@ -338,6 +338,7 @@ G.loadAndContinue = function() {
         if (G.state.fetePhase === undefined) G.state.fetePhase = null;
         if (G.state.feteTimer === undefined) G.state.feteTimer = 0;
         if (!G.state.relationships) G.state.relationships = {};
+        if (!G.state.deliveries) G.state.deliveries = [];
         // Regenerate wildlife
         G.spawnWildlife();
         // Re-place resources if missing
@@ -382,6 +383,16 @@ G.cheatSkipToFete = function() {
 
     // Observe enough animals
     s.observedAnimals = Object.keys(DATA.WILDLIFE).slice(0, 5);
+
+    // Mark all deliver quests as delivered
+    s.deliveries = DATA.QUESTS.filter(q => q.type === 'deliver').map(q => q.id);
+
+    // Set friendship levels high enough for friendship quests
+    for (const npc of DATA.NPCS) {
+        if (!s.relationships[npc.id]) s.relationships[npc.id] = { level: 0, trades: 0, giftGiven: false };
+        s.relationships[npc.id].level = 3;
+        s.relationships[npc.id].trades = 10;
+    }
 
     // Mark all NPCs as talked
     for (const npc of s.npcs) {

@@ -290,6 +290,24 @@ G.checkQuests = function() {
             case 'collect_item':
                 done = G.hasItem(qd.item, qd.qty);
                 break;
+            case 'deliver':
+                // Tracked via state.deliveries (set when player talks to target NPC with items)
+                done = (s.deliveries || []).includes(q.id);
+                break;
+            case 'trade_count': {
+                let totalTrades = 0;
+                for (const r of Object.values(s.relationships)) totalTrades += (r.trades || 0);
+                done = totalTrades >= qd.target;
+                break;
+            }
+            case 'build_type':
+                done = s.placedBuildings.some(b => b.type === qd.target);
+                break;
+            case 'friendship': {
+                const fRel = s.relationships[qd.target];
+                done = fRel && fRel.level >= qd.level;
+                break;
+            }
             case 'fete_finale':
                 // Geree manuellement via interactNPC avec le maire
                 break;
@@ -559,9 +577,33 @@ G.interactNPC = function(npc) {
         return;
     }
 
-    // Visites suivantes : proposer l'échange si disponible
+    // Visites suivantes : vérifier les livraisons de quêtes
     const rel = G.getFriendship(npc.id);
     const greeting = G.pickRevisitLine(npc);
+
+    // Check for active delivery quests targeting this NPC
+    for (const q of s.quests) {
+        if (q.status !== 'available') continue;
+        const qd = DATA.QUESTS.find(x => x.id === q.id);
+        if (!qd || qd.type !== 'deliver' || qd.target !== npc.id) continue;
+        if (G.hasItem(qd.item, qd.qty)) {
+            G.removeItem(qd.item, qd.qty);
+            if (!s.deliveries) s.deliveries = [];
+            s.deliveries.push(q.id);
+            const itemName = DATA.ITEMS[qd.item]?.name || qd.item;
+            s.ui.dialogue = {
+                name: npc.name,
+                lines: [
+                    qd.deliverMsg || 'Merci pour la livraison !',
+                    `✓ Livré : ${itemName} ×${qd.qty}`,
+                ],
+                index: 0, npcId: npc.id,
+                color: npc.color, hair: npc.hair, friendship: rel.level,
+            };
+            G.checkQuests();
+            return;
+        }
+    }
 
     if (npc.trade) {
         const t = npc.trade;
