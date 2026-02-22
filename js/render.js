@@ -521,7 +521,7 @@ G.drawBuildingSprite = function(ctx, sx, sy, s, type) {
             ctx.fillStyle='#87CEEB'; ctx.fillRect(sx+s*0.15,sy+s*0.46,s*0.14,s*0.12); ctx.fillRect(sx+s*0.71,sy+s*0.46,s*0.14,s*0.12);
             // Bienvenue sign
             ctx.fillStyle='rgba(232,200,80,0.8)'; ctx.fillRect(sx+s*0.38,sy+s*0.22,s*0.24,s*0.1);
-            ctx.fillStyle='#5A3A10'; ctx.font='bold 6px "Segoe UI", sans-serif'; ctx.textAlign='center';
+            ctx.fillStyle='#5A3A10'; ctx.font='bold 6px "Lora", Georgia, serif'; ctx.textAlign='center';
             ctx.fillText('GÎTE', sx+s*0.5, sy+s*0.3); ctx.textAlign='left';
             break;
         case 'ferme':
@@ -599,7 +599,7 @@ G.renderTitleScreen = function() {
     ctx.shadowColor = 'rgba(120,200,80,0.55)';
     ctx.shadowBlur = 32;
     ctx.fillStyle='rgba(0,0,0,0.18)';
-    ctx.font='bold 52px "Segoe UI", sans-serif';
+    ctx.font='bold 52px "Lora", Georgia, serif';
     ctx.fillText('Les Huit Communes', w/2+3, h*0.2+3);
     // Shimmer: base color + animated highlight band
     const shimmerX = (Math.sin(t*0.8)*w*0.6 + w/2)|0;
@@ -608,11 +608,11 @@ G.renderTitleScreen = function() {
     titleGrd.addColorStop(0.5,'#FFFDF0');
     titleGrd.addColorStop(1,'#F5E6D3');
     ctx.fillStyle = titleGrd;
-    ctx.font='bold 50px "Segoe UI", sans-serif';
+    ctx.font='bold 50px "Lora", Georgia, serif';
     ctx.fillText('Les Huit Communes', w/2, h*0.2);
     ctx.shadowBlur = 0;
     ctx.fillStyle='#D8C8A8';
-    ctx.font='italic 21px "Segoe UI", sans-serif';
+    ctx.font='italic 21px "Lora", Georgia, serif';
     ctx.fillText('~ Athis-Val-de-Rouvre ~', w/2, h*0.2+48);
 
     // Menu options
@@ -630,13 +630,13 @@ G.renderTitleScreen = function() {
         ctx.lineWidth = hover ? 2 : 1.5;
         ctx.beginPath(); ctx.roundRect(w/2-130,oy-22,260,46,10); ctx.stroke();
         ctx.fillStyle = hover ? '#FFE8A0' : '#F5E6D3';
-        ctx.font = hover ? 'bold 20px "Segoe UI", sans-serif' : '19px "Segoe UI", sans-serif';
+        ctx.font = hover ? 'bold 20px "Lora", Georgia, serif' : '19px "Lora", Georgia, serif';
         ctx.fillText(opts[i], w/2, oy);
     }
 
     // Footer
     ctx.fillStyle='rgba(245,230,211,0.45)';
-    ctx.font='13px "Segoe UI", sans-serif';
+    ctx.font='13px "Lora", Georgia, serif';
     ctx.fillText('Un jeu cozy dans la campagne normande  ✿', w/2, h*0.92);
     ctx.textAlign='left';
 };
@@ -707,7 +707,7 @@ G.renderGame = function() {
                 ctx.fillRect(sx+ts*0.45,sy+ts*0.3,ts*0.1,ts*0.55);
                 ctx.fillRect(sx+ts*0.2,sy+ts*0.2,ts*0.6,ts*0.25);
                 ctx.fillStyle='#F5E6D3';
-                ctx.font='9px "Segoe UI", sans-serif'; ctx.textAlign='center';
+                ctx.font='9px "Lora", Georgia, serif'; ctx.textAlign='center';
                 const cn = G.getCommuneName(tx,ty);
                 ctx.fillText(cn.substring(0,8), sx+ts/2, sy+ts*0.38);
                 ctx.textAlign='left';
@@ -797,7 +797,7 @@ G.renderGame = function() {
             const gsy = (gp.y-startY)*ts+offY;
             ctx.fillStyle='rgba(42,31,20,0.8)';
             ctx.beginPath(); ctx.roundRect(gsx-10,gsy-28,130,22,4); ctx.fill();
-            ctx.fillStyle='#7EC850'; ctx.font='bold 12px "Segoe UI", sans-serif';
+            ctx.fillStyle='#7EC850'; ctx.font='bold 12px "Lora", Georgia, serif';
             ctx.fillText('Potager [marchez dessus]', gsx-5, gsy-13);
         }
         if (playerOnGarden) {
@@ -805,7 +805,7 @@ G.renderGame = function() {
             const gsy = (s.player.y-startY)*ts+offY;
             ctx.fillStyle='rgba(42,31,20,0.8)';
             ctx.beginPath(); ctx.roundRect(gsx-20,gsy-28,120,22,4); ctx.fill();
-            ctx.fillStyle='#FFD700'; ctx.font='bold 12px "Segoe UI", sans-serif';
+            ctx.fillStyle='#FFD700'; ctx.font='bold 12px "Lora", Georgia, serif';
             ctx.fillText('[Espace] ou [G]', gsx-15, gsy-13);
         }
     }
@@ -833,7 +833,7 @@ G.renderGame = function() {
         // Item icon
         ctx.fillStyle = item.icon;
         ctx.beginPath(); ctx.arc(sx+ts/2, sy+ts*0.5, ts*0.2, 0, Math.PI*2); ctx.fill();
-        ctx.fillStyle='#FFF'; ctx.font='10px "Segoe UI", sans-serif'; ctx.textAlign='center';
+        ctx.fillStyle='#FFF'; ctx.font='10px "Lora", Georgia, serif'; ctx.textAlign='center';
         ctx.fillText(r.item.substring(0,3), sx+ts/2, sy+ts*0.55);
         ctx.textAlign='left';
     }
@@ -852,7 +852,7 @@ G.renderGame = function() {
             ctx.fillStyle='rgba(30,18,8,0.85)';
             ctx.beginPath(); ctx.roundRect(wx+ts*0.5-45, wy-20, 90, 17, 4); ctx.fill();
             ctx.fillStyle = already ? '#88CC66' : '#FFD700';
-            ctx.font='bold 10px "Segoe UI", sans-serif'; ctx.textAlign='center';
+            ctx.font='bold 10px "Lora", Georgia, serif'; ctx.textAlign='center';
             ctx.fillText(hintText, wx+ts*0.5, wy-7);
             ctx.textAlign='left';
         }
@@ -876,7 +876,7 @@ G.renderGame = function() {
         G.drawChar(ctx, sx, sy-4, ts, npc.color, npc.hair, 'down', 0);
 
         // Name tag
-        ctx.font='11px "Segoe UI", sans-serif'; ctx.textAlign='center';
+        ctx.font='11px "Lora", Georgia, serif'; ctx.textAlign='center';
         const nm = npc.name.split(' ')[0];
         const tw = ctx.measureText(nm).width;
         ctx.fillStyle = rel.level >= 3 ? 'rgba(80,55,10,0.85)' : 'rgba(42,31,20,0.75)';
@@ -892,7 +892,7 @@ G.renderGame = function() {
             // Glow circle
             ctx.fillStyle = `rgba(255,215,0,${pulse*0.35})`;
             ctx.beginPath(); ctx.arc(sx+ts/2, sy-22+bounce, 10, 0, Math.PI*2); ctx.fill();
-            ctx.fillStyle='#FFD700'; ctx.font='bold 15px "Segoe UI", sans-serif'; ctx.textAlign='center';
+            ctx.fillStyle='#FFD700'; ctx.font='bold 15px "Lora", Georgia, serif'; ctx.textAlign='center';
             ctx.shadowColor='rgba(255,200,0,0.8)'; ctx.shadowBlur=8;
             ctx.fillText('!', sx+ts/2, sy-17+bounce);
             ctx.shadowBlur=0; ctx.textAlign='left';
@@ -905,7 +905,7 @@ G.renderGame = function() {
             const heartChar = rel.level >= 3 ? '♥' : rel.level >= 2 ? '♥' : '♡';
             const heartCol = rel.level >= 3 ? `rgba(255,215,0,${fAlpha})` : `rgba(255,110,140,${fAlpha})`;
             ctx.fillStyle = heartCol;
-            ctx.font = rel.level >= 2 ? 'bold 11px "Segoe UI", sans-serif' : '11px "Segoe UI", sans-serif';
+            ctx.font = rel.level >= 2 ? 'bold 11px "Lora", Georgia, serif' : '11px "Lora", Georgia, serif';
             ctx.textAlign='center';
             ctx.fillText(heartChar, sx+ts*0.82, sy-20+fhOff);
             ctx.textAlign='left';
@@ -922,7 +922,7 @@ G.renderGame = function() {
         ctx.globalAlpha = p.life;
         ctx.fillStyle = p.color;
         if (p.isHeart) {
-            ctx.font = `bold ${Math.round(p.size*2.2)}px "Segoe UI", sans-serif`;
+            ctx.font = `bold ${Math.round(p.size*2.2)}px "Lora", Georgia, serif`;
             ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
             ctx.fillText('♥', p.sx, p.sy);
             ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
@@ -980,7 +980,7 @@ G.renderDialogue = function() {
     // Friendship hearts above portrait
     if (friendship > 0) {
         const heartColors = ['','#FF9BAA','#FF4466','#FFD700'];
-        ctx.font = 'bold 11px "Segoe UI", sans-serif';
+        ctx.font = 'bold 11px "Lora", Georgia, serif';
         const hearts = '♥'.repeat(friendship) + '♡'.repeat(3-friendship);
         ctx.fillStyle = heartColors[friendship] || '#FF9BAA';
         ctx.textAlign = 'center';
@@ -993,7 +993,7 @@ G.renderDialogue = function() {
 
     // Name badge — first name only to avoid overflow
     const firstName = d.name.split(' ')[0];
-    ctx.font = 'bold 14px "Segoe UI", sans-serif';
+    ctx.font = 'bold 14px "Lora", Georgia, serif';
     const firstNameW = ctx.measureText(firstName).width + 20;
     ctx.fillStyle='rgba(80,55,20,0.7)';
     ctx.beginPath(); ctx.roundRect(tx, by+12, firstNameW, 22, 11); ctx.fill();
@@ -1003,13 +1003,13 @@ G.renderDialogue = function() {
     // Full name / profession as subtle subtitle
     if (d.name !== firstName) {
         ctx.fillStyle='rgba(196,168,130,0.65)';
-        ctx.font='italic 11px "Segoe UI", sans-serif';
+        ctx.font='italic 11px "Lora", Georgia, serif';
         ctx.fillText(d.name, tx+4, by+45);
     }
 
     // Text with word-wrap
     const textStartY = d.name !== firstName ? by+62 : by+52;
-    ctx.fillStyle='#F5E6D3'; ctx.font='14px "Segoe UI", sans-serif';
+    ctx.fillStyle='#F5E6D3'; ctx.font='14px "Lora", Georgia, serif';
     const line = d.lines[d.index]||'';
     const words = line.split(' ');
     let ly = textStartY, lx = tx, currentLine = '';
@@ -1025,7 +1025,7 @@ G.renderDialogue = function() {
     // Continue prompt — animated bounce
     const bounce = Math.sin(G.animTime*3)*2;
     ctx.fillStyle='rgba(245,230,211,0.55)';
-    ctx.font='11px "Segoe UI", sans-serif';
+    ctx.font='11px "Lora", Georgia, serif';
     const ctxt = d.index < d.lines.length-1 ? '[ Espace ] Suivant ▶' : '[ Espace ] Fermer ✕';
     ctx.fillText(ctxt, bx+bw-185, by+bh-14+bounce);
 };
@@ -1053,7 +1053,7 @@ G.renderMenu = function() {
         case 'map': title='✦ Carte des Communes'; break;
         case 'relations': title='✦ Relations & Amitiés'; break;
     }
-    ctx.fillStyle='#E8C850'; ctx.font='bold 22px "Segoe UI", sans-serif';
+    ctx.fillStyle='#E8C850'; ctx.font='bold 22px "Lora", Georgia, serif';
     ctx.fillText(title, G.W/2, my+35);
     ctx.textAlign='left';
 
@@ -1062,7 +1062,7 @@ G.renderMenu = function() {
     if (ui.menu==='inventory') {
         const items = Object.entries(s.inventory).filter(([k,v])=>v>0);
         if (items.length===0) {
-            ctx.fillStyle='#C4A882'; ctx.font='15px "Segoe UI", sans-serif';
+            ctx.fillStyle='#C4A882'; ctx.font='15px "Lora", Georgia, serif';
             ctx.fillText('Votre inventaire est vide.', contentX, contentY+20);
         }
         const maxVisible = Math.floor((mh-100)/32);
@@ -1076,13 +1076,13 @@ G.renderMenu = function() {
             if (sel) { ctx.fillStyle='rgba(200,180,140,0.15)'; ctx.fillRect(contentX-5,iy-8,contentW,28); }
             ctx.fillStyle=item.icon||'#AAA';
             ctx.beginPath(); ctx.arc(contentX+12, iy+5, 8, 0, Math.PI*2); ctx.fill();
-            ctx.fillStyle='#F5E6D3'; ctx.font='15px "Segoe UI", sans-serif';
+            ctx.fillStyle='#F5E6D3'; ctx.font='15px "Lora", Georgia, serif';
             ctx.fillText(`${item.name||key}  x${qty}`, contentX+30, iy+9);
         });
         // Scroll indicators
-        if (scroll>0) { ctx.fillStyle='#C4A882'; ctx.font='12px "Segoe UI", sans-serif'; ctx.fillText('▲ ...', contentX, contentY); }
-        if (scroll+maxVisible<items.length) { ctx.fillStyle='#C4A882'; ctx.font='12px "Segoe UI", sans-serif'; ctx.fillText('▼ ...', contentX, my+mh-30); }
-        ctx.fillStyle='#C4A882'; ctx.font='11px "Segoe UI", sans-serif';
+        if (scroll>0) { ctx.fillStyle='#C4A882'; ctx.font='12px "Lora", Georgia, serif'; ctx.fillText('▲ ...', contentX, contentY); }
+        if (scroll+maxVisible<items.length) { ctx.fillStyle='#C4A882'; ctx.font='12px "Lora", Georgia, serif'; ctx.fillText('▼ ...', contentX, my+mh-30); }
+        ctx.fillStyle='#C4A882'; ctx.font='11px "Lora", Georgia, serif';
         ctx.fillText(`${items.length} objet(s)  [Haut/Bas] Defiler  [Echap] Fermer`, contentX, my+mh-12);
     }
 
@@ -1102,10 +1102,10 @@ G.renderMenu = function() {
                 ctx.strokeRect(contentX-5,contentY+2,contentW,36);
             }
             ctx.fillStyle = done ? '#88CC66' : '#FFD700';
-            ctx.font='bold 16px "Segoe UI", sans-serif';
+            ctx.font='bold 16px "Lora", Georgia, serif';
             ctx.fillText((done?'✓ ':'')+(qd?'★ '+qd.name+' ★':'Fête au Village'), contentX, contentY+20);
             ctx.fillStyle = done ? '#88AA66' : '#FFF';
-            ctx.font='12px "Segoe UI", sans-serif';
+            ctx.font='12px "Lora", Georgia, serif';
             ctx.fillText(qd?qd.desc:'', contentX+20, contentY+34);
 
             // Sous-conditions
@@ -1119,10 +1119,10 @@ G.renderMenu = function() {
 
             // Legumes
             ctx.fillStyle = cond.veggies ? '#88CC66' : '#E8C850';
-            ctx.font = 'bold 14px "Segoe UI", sans-serif';
+            ctx.font = 'bold 14px "Lora", Georgia, serif';
             ctx.fillText((cond.veggies ? '✓ ' : '○ ') + 'Ramasser 3 de chaque légume', contentX, subY);
 
-            ctx.font = '12px "Segoe UI", sans-serif';
+            ctx.font = '12px "Lora", Georgia, serif';
             let vegRow = 0;
             for (let i = 0; i < veggieDetails.length; i++) {
                 const v = veggieDetails[i];
@@ -1139,11 +1139,11 @@ G.renderMenu = function() {
             const invitableNpcs = DATA.NPCS.filter(n => n.id !== 'maire');
             const invitedCount = s.feteInvited.filter(id => id !== 'maire').length;
             ctx.fillStyle = cond.npcs ? '#88CC66' : '#E8C850';
-            ctx.font = 'bold 14px "Segoe UI", sans-serif';
+            ctx.font = 'bold 14px "Lora", Georgia, serif';
             ctx.fillText((cond.npcs ? '✓ ' : '○ ') + `Inviter les habitants (${invitedCount}/${invitableNpcs.length})`, contentX, npcY);
 
             // Liste des NPCs invites (sans le maire)
-            ctx.font = '12px "Segoe UI", sans-serif';
+            ctx.font = '12px "Lora", Georgia, serif';
             for (let i = 0; i < invitableNpcs.length; i++) {
                 const npc = invitableNpcs[i];
                 const invited = s.feteInvited.includes(npc.id);
@@ -1158,7 +1158,7 @@ G.renderMenu = function() {
             const maireY = npcY + 18 + Math.ceil(invitableNpcs.length / 3) * 18 + 10;
             const maireReady = cond.veggies && cond.npcs;
             ctx.fillStyle = maireReady ? '#88CC66' : (done ? '#88CC66' : '#888');
-            ctx.font = 'bold 14px "Segoe UI", sans-serif';
+            ctx.font = 'bold 14px "Lora", Georgia, serif';
             ctx.fillText((done ? '✓ ' : '○ ') + 'Parler au Maire pour lancer la fête', contentX, maireY);
         } else {
             // Affichage normal des quetes
@@ -1180,29 +1180,29 @@ G.renderMenu = function() {
                     ctx.fillRect(contentX-5,iy-8,contentW,36);
                     ctx.strokeStyle='#FFD700'; ctx.lineWidth=2;
                     ctx.strokeRect(contentX-5,iy-8,contentW,36);
-                    ctx.fillStyle='#FFD700'; ctx.font='bold 14px "Segoe UI", sans-serif';
+                    ctx.fillStyle='#FFD700'; ctx.font='bold 14px "Lora", Georgia, serif';
                     ctx.fillText('★ '+qd.name+' ★', contentX, iy+8);
-                    ctx.fillStyle='#FFF'; ctx.font='bold 12px "Segoe UI", sans-serif';
+                    ctx.fillStyle='#FFF'; ctx.font='bold 12px "Lora", Georgia, serif';
                     ctx.fillText(qd.desc, contentX+20, iy+24);
                 } else if (isLocked) {
                     ctx.globalAlpha = 0.38;
                     ctx.fillStyle = 'rgba(80,60,40,0.15)';
                     ctx.fillRect(contentX-5,iy-8,contentW,36);
                     ctx.fillStyle = '#887766';
-                    ctx.font='bold 13px "Segoe UI", sans-serif';
+                    ctx.font='bold 13px "Lora", Georgia, serif';
                     ctx.fillText('🔒 ' + qd.name, contentX, iy+8);
                     ctx.fillStyle = '#665544';
-                    ctx.font='11px "Segoe UI", sans-serif';
+                    ctx.font='11px "Lora", Georgia, serif';
                     ctx.fillText(qd.desc, contentX+20, iy+24);
                     ctx.globalAlpha = 1;
                 } else {
                     ctx.fillStyle = done?'rgba(100,200,100,0.15)':'rgba(200,180,140,0.08)';
                     ctx.fillRect(contentX-5,iy-8,contentW,36);
                     ctx.fillStyle = done?'#88CC66':(isFinal?'#888':'#E8C850');
-                    ctx.font='bold 14px "Segoe UI", sans-serif';
+                    ctx.font='bold 14px "Lora", Georgia, serif';
                     ctx.fillText((done?'✓ ':'○ ')+qd.name, contentX, iy+8);
                     ctx.fillStyle = done?'#88AA66':'#C4A882';
-                    ctx.font='12px "Segoe UI", sans-serif';
+                    ctx.font='12px "Lora", Georgia, serif';
                     ctx.fillText(qd.desc, contentX+20, iy+24);
                 }
                 yi++;
@@ -1226,7 +1226,7 @@ G.renderMenu = function() {
                     curY += 6;
                 }
                 ctx.fillStyle='rgba(196,168,130,0.6)';
-                ctx.font='bold 11px "Segoe UI", sans-serif';
+                ctx.font='bold 11px "Lora", Georgia, serif';
                 ctx.fillText(tierNames[b.tier]||`Tier ${b.tier}`, contentX, curY+10);
                 curY += 18;
             }
@@ -1241,7 +1241,7 @@ G.renderMenu = function() {
             if (sel) { ctx.fillStyle='rgba(200,180,140,0.2)'; ctx.fillRect(contentX-5, curY-4, contentW, 30); }
             if (!unlocked) ctx.globalAlpha = 0.45;
             ctx.fillStyle = !unlocked ? '#A89070' : canAfford ? (sel?'#F5E6D3':'#C4A882') : '#886666';
-            ctx.font = 'bold 13px "Segoe UI", sans-serif';
+            ctx.font = 'bold 13px "Lora", Georgia, serif';
             ctx.fillText((sel?'▶ ':'')+b.name, contentX, curY+8);
             if (!unlocked) {
                 let hint = [];
@@ -1249,17 +1249,17 @@ G.renderMenu = function() {
                 if (b.requires.buildings) hint.push(`${b.requires.buildings} bâtiments`);
                 if (b.requires.built_one_of) hint.push(`après: ${b.requires.built_one_of.join('/')}`);
                 ctx.fillStyle = '#887766';
-                ctx.font = '10px "Segoe UI", sans-serif';
+                ctx.font = '10px "Lora", Georgia, serif';
                 ctx.fillText(`🔒 Débloque avec ${hint.join(', ')}`, contentX+20, curY+21);
             } else {
                 ctx.fillStyle = canAfford ? '#A89070' : '#886666';
-                ctx.font = '11px "Segoe UI", sans-serif';
+                ctx.font = '11px "Lora", Georgia, serif';
                 ctx.fillText(`Coût: ${costStr}  ·  ♥ +${b.happiness}${b.attractsVillagers?' · +'+b.attractsVillagers+' hab.':''}`, contentX+20, curY+21);
             }
             ctx.globalAlpha = 1;
             curY += 32;
         });
-        ctx.fillStyle='#C4A882'; ctx.font='11px "Segoe UI", sans-serif';
+        ctx.fillStyle='#C4A882'; ctx.font='11px "Lora", Georgia, serif';
         ctx.fillText('[↑↓] Choisir  [Espace] Construire  [Echap] Fermer', contentX, my+mh-12);
     }
 
@@ -1286,13 +1286,13 @@ G.renderMenu = function() {
                 const stageColors = ['','#C8A060','#7EC850','#5DA832','#FFD700','#FF8800'];
                 ctx.fillStyle = stageColors[p.stage]||'#C4A882';
                 ctx.beginPath(); ctx.roundRect(gx+8,gy+94,48,14,7); ctx.fill();
-                ctx.fillStyle='#1A0F08'; ctx.font='bold 11px "Segoe UI", sans-serif'; ctx.textAlign='center';
+                ctx.fillStyle='#1A0F08'; ctx.font='bold 11px "Lora", Georgia, serif'; ctx.textAlign='center';
                 ctx.fillText(DATA.CROP_STAGES[p.stage]||'?', gx+32, gy+104);
                 ctx.textAlign='left';
             }
             // Crop name
             ctx.fillStyle = p.crop ? '#F5E6D3' : '#A89070';
-            ctx.font = 'bold 12px "Segoe UI", sans-serif';
+            ctx.font = 'bold 12px "Lora", Georgia, serif';
             const cropD = p.crop ? DATA.CROPS[p.crop] : null;
             ctx.fillText(cropD ? cropD.name : 'Parcelle vide', gx+10, gy+122);
             if (p.crop && p.stage>0 && p.stage<5) {
@@ -1306,19 +1306,19 @@ G.renderMenu = function() {
                     ctx.fillStyle='rgba(91,155,213,0.85)';
                     ctx.beginPath(); ctx.roundRect(gx+10,gy+130,(barW*wc/needed)|0,barH,4); ctx.fill();
                 }
-                ctx.fillStyle='rgba(136,204,255,0.7)'; ctx.font='11px "Segoe UI", sans-serif';
+                ctx.fillStyle='rgba(136,204,255,0.7)'; ctx.font='11px "Lora", Georgia, serif';
                 ctx.fillText(`💧 ${wc}/${needed}`, gx+10, gy+152);
                 if (sel && wc<needed) {
-                    ctx.fillStyle='#7EC850'; ctx.font='bold 11px "Segoe UI", sans-serif';
+                    ctx.fillStyle='#7EC850'; ctx.font='bold 11px "Lora", Georgia, serif';
                     ctx.fillText('[Espace] Arroser', gx+10, gy+165);
                 }
             } else if (p.crop && p.stage>=5) {
-                ctx.fillStyle='#FFD700'; ctx.font='bold 11px "Segoe UI", sans-serif';
+                ctx.fillStyle='#FFD700'; ctx.font='bold 11px "Lora", Georgia, serif';
                 const sp = Math.sin(G.animTime*4)*1;
                 ctx.fillText('✦ Prêt à récolter !', gx+10, gy+140+sp);
                 if (sel) ctx.fillText('[Espace] Récolter', gx+10, gy+157);
             } else if (!p.crop) {
-                if (sel) { ctx.fillStyle='#7EC850'; ctx.font='11px "Segoe UI", sans-serif'; ctx.fillText('[Espace] Planter', gx+10, gy+140); }
+                if (sel) { ctx.fillStyle='#7EC850'; ctx.font='11px "Lora", Georgia, serif'; ctx.fillText('[Espace] Planter', gx+10, gy+140); }
             }
         });
         // Seed selection sub-menu
@@ -1330,14 +1330,14 @@ G.renderMenu = function() {
             ctx.beginPath(); ctx.roundRect(G.W/2-165, boxY, 330, boxH, 8); ctx.fill();
             ctx.strokeStyle='#C4A882'; ctx.lineWidth=2;
             ctx.beginPath(); ctx.roundRect(G.W/2-165, boxY, 330, boxH, 8); ctx.stroke();
-            ctx.fillStyle='#E8C850'; ctx.font='bold 16px "Segoe UI", sans-serif'; ctx.textAlign='center';
+            ctx.fillStyle='#E8C850'; ctx.font='bold 16px "Lora", Georgia, serif'; ctx.textAlign='center';
             ctx.fillText('Choisir une graine', G.W/2, boxY+26);
             ctx.strokeStyle='rgba(196,168,130,0.25)'; ctx.lineWidth=1;
             ctx.beginPath(); ctx.moveTo(G.W/2-150, boxY+38); ctx.lineTo(G.W/2+150, boxY+38); ctx.stroke();
             ctx.textAlign='left';
             const seasonsFr = { printemps: 'Prin.', ete: 'Été', automne: 'Aut.', hiver: 'Hiver' };
             if (seeds.length===0) {
-                ctx.fillStyle='#C4A882'; ctx.font='14px "Segoe UI", sans-serif'; ctx.textAlign='center';
+                ctx.fillStyle='#C4A882'; ctx.font='14px "Lora", Georgia, serif'; ctx.textAlign='center';
                 ctx.fillText('Aucune graine disponible !', G.W/2, boxY+80);
                 ctx.textAlign='left';
             }
@@ -1356,19 +1356,19 @@ G.renderMenu = function() {
                 ctx.fillStyle=item?.icon||'#AAA';
                 ctx.beginPath(); ctx.arc(G.W/2-138, iy+5, 6, 0, Math.PI*2); ctx.fill();
                 ctx.fillStyle = !canPlant ? '#885555' : (sel2?'#F5E6D3':'#C4A882');
-                ctx.font='13px "Segoe UI", sans-serif';
+                ctx.font='13px "Lora", Georgia, serif';
                 const seasonTag = crop&&crop.season ? ` · ${crop.season.map(ss=>seasonsFr[ss]||ss).join('/')}` : '';
                 ctx.fillText(`${item?.name||key}  x${qty}${seasonTag}`, G.W/2-122, iy+9);
                 if (!canPlant) {
-                    ctx.fillStyle='rgba(255,80,80,0.7)'; ctx.font='11px "Segoe UI", sans-serif';
+                    ctx.fillStyle='rgba(255,80,80,0.7)'; ctx.font='11px "Lora", Georgia, serif';
                     ctx.fillText('hors saison', G.W/2+60, iy+9);
                 }
             });
-            ctx.fillStyle='rgba(196,168,130,0.45)'; ctx.font='11px "Segoe UI", sans-serif'; ctx.textAlign='center';
+            ctx.fillStyle='rgba(196,168,130,0.45)'; ctx.font='11px "Lora", Georgia, serif'; ctx.textAlign='center';
             ctx.fillText('[↑↓] Choisir  [Espace] Planter  [Échap] Annuler', G.W/2, boxY+boxH-10);
             ctx.textAlign='left';
         }
-        ctx.fillStyle='#C4A882'; ctx.font='12px "Segoe UI", sans-serif'; ctx.textAlign='left';
+        ctx.fillStyle='#C4A882'; ctx.font='12px "Lora", Georgia, serif'; ctx.textAlign='left';
         ctx.fillText('[Fleches] Naviguer  [Espace] Action  [Echap] Fermer', contentX, my+mh-15);
     }
 
@@ -1422,11 +1422,11 @@ G.renderMenu = function() {
             }
             ctx.strokeStyle = visited?'rgba(255,255,255,0.5)':'#444'; ctx.lineWidth=1;
             ctx.beginPath(); ctx.arc(cx2,cy2,13,0,Math.PI*2); ctx.stroke();
-            ctx.fillStyle=visited?'#FFF':'#888'; ctx.font='bold 11px "Segoe UI", sans-serif'; ctx.textAlign='center';
+            ctx.fillStyle=visited?'#FFF':'#888'; ctx.font='bold 11px "Lora", Georgia, serif'; ctx.textAlign='center';
             ctx.fillText(c.name.split(' ')[0].split('-')[0], cx2, cy2+3);
             // Unvisited label
             if (!visited) {
-                ctx.fillStyle='rgba(180,150,100,0.6)'; ctx.font='10px "Segoe UI", sans-serif';
+                ctx.fillStyle='rgba(180,150,100,0.6)'; ctx.font='10px "Lora", Georgia, serif';
                 ctx.fillText('?', cx2, cy2+3);
             }
         }
@@ -1445,9 +1445,9 @@ G.renderMenu = function() {
         // Legend
         ctx.textAlign='left';
         const visited = s.visitedCommunes.length;
-        ctx.fillStyle=visited>=8?'#88CC66':'#C4A882'; ctx.font='12px "Segoe UI", sans-serif';
+        ctx.fillStyle=visited>=8?'#88CC66':'#C4A882'; ctx.font='12px "Lora", Georgia, serif';
         ctx.fillText(`Communes visitées: ${visited}/8  ${visited>=8?'✓':''}`, contentX, my+mh-20);
-        ctx.fillStyle='rgba(196,168,130,0.5)'; ctx.font='11px "Segoe UI", sans-serif';
+        ctx.fillStyle='rgba(196,168,130,0.5)'; ctx.font='11px "Lora", Georgia, serif';
         ctx.fillText('● Vous   ○ Non visitée', contentX+220, my+mh-20);
         ctx.textAlign='left';
     }
@@ -1485,41 +1485,41 @@ G.renderMenu = function() {
             // Name
             const tx3 = cx2 + pr2*2 + 18;
             ctx.fillStyle = rel.level >= 1 ? '#F5E6D3' : '#A89070';
-            ctx.font = 'bold 12px "Segoe UI", sans-serif';
+            ctx.font = 'bold 12px "Lora", Georgia, serif';
             ctx.fillText(npc.name.split(' ')[0], tx3, cy2+20);
             ctx.fillStyle = 'rgba(196,168,130,0.65)';
-            ctx.font = 'italic 10px "Segoe UI", sans-serif';
+            ctx.font = 'italic 10px "Lora", Georgia, serif';
             const commune = DATA.COMMUNES[npc.commune];
             ctx.fillText(commune ? commune.name.split('-')[0] : '', tx3, cy2+34);
             // Friendship hearts
             const heartColors2 = ['#555','#FF9BAA','#FF4466','#FFD700'];
             ctx.fillStyle = heartColors2[rel.level] || '#555';
-            ctx.font = '13px "Segoe UI", sans-serif';
+            ctx.font = '13px "Lora", Georgia, serif';
             const hearts2 = rel.level > 0 ? '♥'.repeat(rel.level)+'♡'.repeat(3-rel.level) : '♡♡♡';
             ctx.fillText(hearts2, tx3, cy2+54);
             // Friendship label
             const fLabels = ['Inconnu(e)','Connaissance ♡','Ami(e) ♥','Meilleur(e) ami(e) ♥♥'];
             ctx.fillStyle = heartColors2[rel.level] || '#555';
-            ctx.font = '10px "Segoe UI", sans-serif';
+            ctx.font = '10px "Lora", Georgia, serif';
             ctx.fillText(fLabels[rel.level]||'Inconnu(e)', tx3, cy2+68);
             // Met status
             if (stateNpc && !stateNpc.talked) {
                 ctx.fillStyle = 'rgba(255,215,0,0.65)';
-                ctx.font = '9px "Segoe UI", sans-serif';
+                ctx.font = '9px "Lora", Georgia, serif';
                 ctx.fillText('! À rencontrer', tx3, cy2+84);
             } else if (rel.trades > 0) {
                 ctx.fillStyle = 'rgba(196,168,130,0.4)';
-                ctx.font = '9px "Segoe UI", sans-serif';
+                ctx.font = '9px "Lora", Georgia, serif';
                 ctx.fillText(`${rel.trades} échange(s)`, tx3, cy2+84);
             }
         });
-        ctx.fillStyle='#C4A882'; ctx.font='11px "Segoe UI", sans-serif';
+        ctx.fillStyle='#C4A882'; ctx.font='11px "Lora", Georgia, serif';
         ctx.fillText('[R] ou [Echap] Fermer', contentX, my+mh-12);
     }
 
     // Escape hint
     if (ui.menu!=='garden' || ui.gardenMode!=='plant') {
-        ctx.fillStyle='rgba(245,230,211,0.4)'; ctx.font='11px "Segoe UI", sans-serif';
+        ctx.fillStyle='rgba(245,230,211,0.4)'; ctx.font='11px "Lora", Georgia, serif';
         ctx.textAlign='right';
         ctx.fillText('[Echap] Fermer', mx+mw-15, my+mh-8);
         ctx.textAlign='left';
@@ -1578,24 +1578,24 @@ G.renderVictoryScreen = function() {
 
     // Ombre
     ctx.fillStyle = 'rgba(0,0,0,0.3)';
-    ctx.font = 'bold 48px "Segoe UI", sans-serif';
+    ctx.font = 'bold 48px "Lora", Georgia, serif';
     ctx.fillText('FELICITATIONS!', w / 2 + 3, h * 0.25 + 3);
     // Texte
     ctx.fillStyle = '#FFD700';
     ctx.fillText('FELICITATIONS!', w / 2, h * 0.25);
 
     ctx.fillStyle = '#F5E6D3';
-    ctx.font = '24px "Segoe UI", sans-serif';
+    ctx.font = '24px "Lora", Georgia, serif';
     ctx.fillText('La Grande Fete du Village bat son plein!', w / 2, h * 0.35);
 
-    ctx.font = '20px "Segoe UI", sans-serif';
+    ctx.font = '20px "Lora", Georgia, serif';
     ctx.fillText('Athis-Val-de-Rouvre est devenu un village', w / 2, h * 0.45);
     ctx.fillText('prospere et heureux grace a vous!', w / 2, h * 0.50);
 
     // Stats
     const s = G.state;
     ctx.fillStyle = '#E8C850';
-    ctx.font = '18px "Segoe UI", sans-serif';
+    ctx.font = '18px "Lora", Georgia, serif';
     ctx.fillText(`${s.villagers} habitants  |  ${s.happiness} bonheur  |  ${s.totalBuildings} batiments  |  Tour ${s.turn}`, w / 2, h * 0.60);
 
     // Bouton Rejouer
@@ -1611,12 +1611,12 @@ G.renderVictoryScreen = function() {
     ctx.roundRect(btnX, btnY, btnW, btnH, 10);
     ctx.stroke();
     ctx.fillStyle = '#F5E6D3';
-    ctx.font = hover ? 'bold 22px "Segoe UI", sans-serif' : '20px "Segoe UI", sans-serif';
+    ctx.font = hover ? 'bold 22px "Lora", Georgia, serif' : '20px "Lora", Georgia, serif';
     ctx.fillText('Rejouer', w / 2, btnY + btnH / 2);
 
     // Footer
     ctx.fillStyle = 'rgba(245,230,211,0.5)';
-    ctx.font = '14px "Segoe UI", sans-serif';
+    ctx.font = '14px "Lora", Georgia, serif';
     ctx.fillText('Merci d\'avoir joue!', w / 2, h * 0.88);
 
     ctx.textAlign = 'left';
