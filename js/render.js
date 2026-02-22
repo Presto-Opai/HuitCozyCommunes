@@ -273,6 +273,69 @@ G.drawAnimal = function(ctx, sx, sy, s, type, frame) {
                 ctx.fill();
             }
             break;
+        case 'pie': case 'corneille':
+            ctx.fillStyle = col;
+            ctx.beginPath(); ctx.ellipse(cx, cy+sz*0.05, sz*0.22, sz*0.13, 0, 0, Math.PI*2); ctx.fill(); // body
+            ctx.beginPath(); ctx.arc(cx+sz*0.2, cy-sz*0.04, sz*0.1, 0, Math.PI*2); ctx.fill(); // head
+            if (type==='pie') { // white patches
+                ctx.fillStyle='#FFFFFF';
+                ctx.beginPath(); ctx.ellipse(cx-sz*0.06, cy+sz*0.02, sz*0.09, sz*0.05, 0, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.ellipse(cx+sz*0.12, cy+sz*0.1, sz*0.05, sz*0.03, 0, 0, Math.PI*2); ctx.fill();
+            }
+            ctx.fillStyle = col;
+            ctx.beginPath(); ctx.moveTo(cx-sz*0.18,cy); ctx.lineTo(cx-sz*0.34,cy+sz*0.14); ctx.lineTo(cx+sz*0.05,cy+sz*0.07); ctx.fill(); // wing
+            ctx.fillStyle='#666600';
+            ctx.beginPath(); ctx.moveTo(cx+sz*0.28,cy-sz*0.04); ctx.lineTo(cx+sz*0.42,cy-sz*0.01); ctx.lineTo(cx+sz*0.28,cy+sz*0.02); ctx.fill(); // beak
+            break;
+        case 'poule':
+            ctx.fillStyle = col;
+            ctx.beginPath(); ctx.ellipse(cx, cy+sz*0.08, sz*0.25, sz*0.18, 0, 0, Math.PI*2); ctx.fill(); // body
+            ctx.beginPath(); ctx.arc(cx+sz*0.22, cy-sz*0.1, sz*0.12, 0, Math.PI*2); ctx.fill(); // head
+            ctx.fillStyle='#CC2222'; // red comb
+            ctx.beginPath(); ctx.arc(cx+sz*0.22, cy-sz*0.22, sz*0.06, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle='#FFAA00'; // beak
+            ctx.beginPath(); ctx.moveTo(cx+sz*0.32,cy-sz*0.08); ctx.lineTo(cx+sz*0.44,cy-sz*0.05); ctx.lineTo(cx+sz*0.32,cy-sz*0.02); ctx.fill();
+            ctx.fillStyle = col;
+            ctx.beginPath(); ctx.moveTo(cx-sz*0.22,cy); ctx.lineTo(cx-sz*0.4,cy-sz*0.18); ctx.lineTo(cx-sz*0.35,cy+sz*0.06); ctx.fill(); // tail
+            break;
+        case 'vache':
+            ctx.fillStyle = col;
+            ctx.beginPath(); ctx.ellipse(cx, cy, sz*0.42, sz*0.28, 0, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(cx+sz*0.4, cy-sz*0.18, sz*0.18, 0, Math.PI*2); ctx.fill(); // head
+            ctx.fillStyle='#8B5E3C'; // patches
+            ctx.beginPath(); ctx.ellipse(cx-sz*0.1, cy-sz*0.05, sz*0.12, sz*0.1, 0.3, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.ellipse(cx+sz*0.15, cy+sz*0.1, sz*0.08, sz*0.07, -0.2, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = col;
+            ctx.fillRect(cx-sz*0.3,cy+sz*0.22,sz*0.07,sz*0.22); ctx.fillRect(cx-sz*0.12,cy+sz*0.22,sz*0.07,sz*0.22);
+            ctx.fillRect(cx+sz*0.06,cy+sz*0.22,sz*0.07,sz*0.22); ctx.fillRect(cx+sz*0.24,cy+sz*0.22,sz*0.07,sz*0.22);
+            ctx.fillStyle='#EEEECC'; // horns
+            ctx.fillRect(cx+sz*0.34,cy-sz*0.36,sz*0.04,sz*0.14); ctx.fillRect(cx+sz*0.44,cy-sz*0.36,sz*0.04,sz*0.14);
+            break;
+        case 'mouton':
+            ctx.fillStyle = '#F0F0E8';
+            ctx.beginPath(); ctx.ellipse(cx, cy, sz*0.32, sz*0.26, 0, 0, Math.PI*2); ctx.fill();
+            for (let fi=0;fi<5;fi++) { // fluffy bumps
+                const fa=fi*Math.PI*2/5;
+                ctx.beginPath(); ctx.arc(cx+Math.cos(fa)*sz*0.22, cy+Math.sin(fa)*sz*0.17, sz*0.1, 0, Math.PI*2); ctx.fill();
+            }
+            ctx.fillStyle='#887766'; // dark face + legs
+            ctx.beginPath(); ctx.arc(cx+sz*0.3, cy-sz*0.12, sz*0.12, 0, Math.PI*2); ctx.fill();
+            ctx.fillRect(cx-sz*0.22,cy+sz*0.18,sz*0.06,sz*0.2); ctx.fillRect(cx-sz*0.06,cy+sz*0.18,sz*0.06,sz*0.2);
+            ctx.fillRect(cx+sz*0.08,cy+sz*0.18,sz*0.06,sz*0.2); ctx.fillRect(cx+sz*0.22,cy+sz*0.18,sz*0.06,sz*0.2);
+            break;
+        case 'chevre':
+            ctx.fillStyle = col;
+            ctx.beginPath(); ctx.ellipse(cx, cy+sz*0.05, sz*0.28, sz*0.2, 0, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(cx+sz*0.25, cy-sz*0.12, sz*0.14, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle='#CCBBAA'; // beard
+            ctx.beginPath(); ctx.ellipse(cx+sz*0.25, cy+sz*0.04, sz*0.04, sz*0.1, 0, 0, Math.PI*2); ctx.fill();
+            ctx.strokeStyle='#998877'; ctx.lineWidth=1.5; // horns
+            ctx.beginPath(); ctx.moveTo(cx+sz*0.2,cy-sz*0.24); ctx.lineTo(cx+sz*0.14,cy-sz*0.38); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(cx+sz*0.3,cy-sz*0.24); ctx.lineTo(cx+sz*0.36,cy-sz*0.38); ctx.stroke();
+            ctx.fillStyle = col;
+            ctx.fillRect(cx-sz*0.2,cy+sz*0.18,sz*0.06,sz*0.22); ctx.fillRect(cx-sz*0.05,cy+sz*0.18,sz*0.06,sz*0.22);
+            ctx.fillRect(cx+sz*0.1,cy+sz*0.18,sz*0.06,sz*0.22); ctx.fillRect(cx+sz*0.25,cy+sz*0.18,sz*0.06,sz*0.22);
+            break;
         default:
             ctx.fillStyle = col;
             ctx.beginPath(); ctx.arc(cx, cy, sz*0.15, 0, Math.PI*2); ctx.fill();
@@ -426,6 +489,52 @@ G.drawBuildingSprite = function(ctx, sx, sy, s, type) {
             }
             ctx.fillStyle = '#4CAF50';
             ctx.fillRect(sx+s*0.05,sy+s*0.7,s*0.9,s*0.1);
+            break;
+        case 'chaumiere':
+            // Thatched cottage
+            ctx.fillStyle = '#EAD5B0'; ctx.fillRect(sx+s*0.15,sy+s*0.42,s*0.7,s*0.43);
+            ctx.fillStyle = '#7A5E2A'; // thatched roof
+            ctx.beginPath(); ctx.moveTo(sx+s*0.05,sy+s*0.46); ctx.lineTo(sx+s*0.5,sy+s*0.1); ctx.lineTo(sx+s*0.95,sy+s*0.46); ctx.fill();
+            ctx.strokeStyle='rgba(160,110,40,0.35)'; ctx.lineWidth=1;
+            for (let r=0;r<3;r++) { ctx.beginPath(); ctx.moveTo(sx+s*(0.1+r*0.04),sy+s*(0.42-r*0.05)); ctx.lineTo(sx+s*(0.9-r*0.04),sy+s*(0.42-r*0.05)); ctx.stroke(); }
+            ctx.fillStyle='#7A5A3A'; ctx.fillRect(sx+s*0.41,sy+s*0.6,s*0.18,s*0.25);
+            break;
+        case 'maison':
+            // Norman half-timber house
+            ctx.fillStyle = '#F0E8D8'; ctx.fillRect(sx+s*0.12,sy+s*0.35,s*0.76,s*0.5);
+            ctx.fillStyle = '#C65D3E'; // red roof
+            ctx.beginPath(); ctx.moveTo(sx+s*0.08,sy+s*0.38); ctx.lineTo(sx+s*0.5,sy+s*0.1); ctx.lineTo(sx+s*0.92,sy+s*0.38); ctx.fill();
+            ctx.strokeStyle='#5D3A1A'; ctx.lineWidth=2;
+            ctx.beginPath(); ctx.moveTo(sx+s*0.12,sy+s*0.6); ctx.lineTo(sx+s*0.88,sy+s*0.6); ctx.stroke(); // horizontal beam
+            ctx.beginPath(); ctx.moveTo(sx+s*0.5,sy+s*0.35); ctx.lineTo(sx+s*0.5,sy+s*0.85); ctx.stroke(); // vertical
+            ctx.beginPath(); ctx.moveTo(sx+s*0.12,sy+s*0.52); ctx.lineTo(sx+s*0.34,sy+s*0.35); ctx.stroke(); // diagonal left
+            ctx.beginPath(); ctx.moveTo(sx+s*0.88,sy+s*0.52); ctx.lineTo(sx+s*0.66,sy+s*0.35); ctx.stroke(); // diagonal right
+            ctx.fillStyle='#8B6E4E'; ctx.fillRect(sx+s*0.4,sy+s*0.62,s*0.2,s*0.23);
+            ctx.fillStyle='#87CEEB'; ctx.fillRect(sx+s*0.17,sy+s*0.43,s*0.14,s*0.13); ctx.fillRect(sx+s*0.69,sy+s*0.43,s*0.14,s*0.13);
+            break;
+        case 'gite':
+            // Rural gite - welcoming facade
+            ctx.fillStyle = '#E8D8C0'; ctx.fillRect(sx+s*0.1,sy+s*0.38,s*0.8,s*0.47);
+            ctx.fillStyle = '#B05030';
+            ctx.beginPath(); ctx.moveTo(sx+s*0.06,sy+s*0.42); ctx.lineTo(sx+s*0.5,sy+s*0.12); ctx.lineTo(sx+s*0.94,sy+s*0.42); ctx.fill();
+            ctx.fillStyle='#8B6E4E'; ctx.fillRect(sx+s*0.41,sy+s*0.6,s*0.18,s*0.25);
+            ctx.fillStyle='#87CEEB'; ctx.fillRect(sx+s*0.15,sy+s*0.46,s*0.14,s*0.12); ctx.fillRect(sx+s*0.71,sy+s*0.46,s*0.14,s*0.12);
+            // Bienvenue sign
+            ctx.fillStyle='rgba(232,200,80,0.8)'; ctx.fillRect(sx+s*0.38,sy+s*0.22,s*0.24,s*0.1);
+            ctx.fillStyle='#5A3A10'; ctx.font='bold 6px "Segoe UI", sans-serif'; ctx.textAlign='center';
+            ctx.fillText('GÎTE', sx+s*0.5, sy+s*0.3); ctx.textAlign='left';
+            break;
+        case 'ferme':
+            // Renovated farm - large barn
+            ctx.fillStyle = '#E4D0A8'; ctx.fillRect(sx+s*0.06,sy+s*0.28,s*0.88,s*0.57);
+            ctx.fillStyle = '#7A5030';
+            ctx.beginPath(); ctx.moveTo(sx+s*0.02,sy+s*0.32); ctx.lineTo(sx+s*0.5,sy+s*0.04); ctx.lineTo(sx+s*0.98,sy+s*0.32); ctx.fill();
+            ctx.fillStyle='#7D5B38'; ctx.fillRect(sx+s*0.3,sy+s*0.54,s*0.4,s*0.31); // big barn doors
+            ctx.fillStyle='#634830'; ctx.fillRect(sx+s*0.485,sy+s*0.54,s*0.03,s*0.31); // door split
+            ctx.fillStyle='#87CEEB'; ctx.fillRect(sx+s*0.1,sy+s*0.38,s*0.12,s*0.1); ctx.fillRect(sx+s*0.78,sy+s*0.38,s*0.12,s*0.1);
+            // Silo tower
+            ctx.fillStyle='#BCA060'; ctx.fillRect(sx+s*0.79,sy+s*0.14,s*0.14,s*0.57);
+            ctx.beginPath(); ctx.ellipse(sx+s*0.86,sy+s*0.14,s*0.07,s*0.04,0,0,Math.PI*2); ctx.fill();
             break;
     }
 };
@@ -598,7 +707,7 @@ G.renderGame = function() {
                 ctx.fillRect(sx+ts*0.45,sy+ts*0.3,ts*0.1,ts*0.55);
                 ctx.fillRect(sx+ts*0.2,sy+ts*0.2,ts*0.6,ts*0.25);
                 ctx.fillStyle='#F5E6D3';
-                ctx.font='7px sans-serif'; ctx.textAlign='center';
+                ctx.font='9px "Segoe UI", sans-serif'; ctx.textAlign='center';
                 const cn = G.getCommuneName(tx,ty);
                 ctx.fillText(cn.substring(0,8), sx+ts/2, sy+ts*0.38);
                 ctx.textAlign='left';
@@ -688,7 +797,7 @@ G.renderGame = function() {
             const gsy = (gp.y-startY)*ts+offY;
             ctx.fillStyle='rgba(42,31,20,0.8)';
             ctx.beginPath(); ctx.roundRect(gsx-10,gsy-28,130,22,4); ctx.fill();
-            ctx.fillStyle='#7EC850'; ctx.font='bold 12px sans-serif';
+            ctx.fillStyle='#7EC850'; ctx.font='bold 12px "Segoe UI", sans-serif';
             ctx.fillText('Potager [marchez dessus]', gsx-5, gsy-13);
         }
         if (playerOnGarden) {
@@ -696,7 +805,7 @@ G.renderGame = function() {
             const gsy = (s.player.y-startY)*ts+offY;
             ctx.fillStyle='rgba(42,31,20,0.8)';
             ctx.beginPath(); ctx.roundRect(gsx-20,gsy-28,120,22,4); ctx.fill();
-            ctx.fillStyle='#FFD700'; ctx.font='bold 12px sans-serif';
+            ctx.fillStyle='#FFD700'; ctx.font='bold 12px "Segoe UI", sans-serif';
             ctx.fillText('[Espace] ou [G]', gsx-15, gsy-13);
         }
     }
@@ -724,7 +833,7 @@ G.renderGame = function() {
         // Item icon
         ctx.fillStyle = item.icon;
         ctx.beginPath(); ctx.arc(sx+ts/2, sy+ts*0.5, ts*0.2, 0, Math.PI*2); ctx.fill();
-        ctx.fillStyle='#FFF'; ctx.font='8px sans-serif'; ctx.textAlign='center';
+        ctx.fillStyle='#FFF'; ctx.font='10px "Segoe UI", sans-serif'; ctx.textAlign='center';
         ctx.fillText(r.item.substring(0,3), sx+ts/2, sy+ts*0.55);
         ctx.textAlign='left';
     }
@@ -735,6 +844,18 @@ G.renderGame = function() {
         const wy = (w.y-cam.y/ts)*ts;
         if (wx<-ts||wx>G.W+ts||wy<-ts||wy>G.H+ts) continue;
         G.drawAnimal(ctx, wx, wy, ts, w.type, G.animTime);
+        // Observe hint for nearby domestic animals
+        const wdata = DATA.WILDLIFE[w.type];
+        if (wdata?.domestic && G.dist(w.x, w.y, s.player.x, s.player.y) < 2) {
+            const already = s.observedAnimals.includes(w.type);
+            const hintText = already ? `${wdata.name} ♥` : `[Espace] Observer`;
+            ctx.fillStyle='rgba(30,18,8,0.85)';
+            ctx.beginPath(); ctx.roundRect(wx+ts*0.5-45, wy-20, 90, 17, 4); ctx.fill();
+            ctx.fillStyle = already ? '#88CC66' : '#FFD700';
+            ctx.font='bold 10px "Segoe UI", sans-serif'; ctx.textAlign='center';
+            ctx.fillText(hintText, wx+ts*0.5, wy-7);
+            ctx.textAlign='left';
+        }
     }
 
     // --- Draw NPCs ---
@@ -755,7 +876,7 @@ G.renderGame = function() {
         G.drawChar(ctx, sx, sy-4, ts, npc.color, npc.hair, 'down', 0);
 
         // Name tag
-        ctx.font='9px sans-serif'; ctx.textAlign='center';
+        ctx.font='11px "Segoe UI", sans-serif'; ctx.textAlign='center';
         const nm = npc.name.split(' ')[0];
         const tw = ctx.measureText(nm).width;
         ctx.fillStyle = rel.level >= 3 ? 'rgba(80,55,10,0.85)' : 'rgba(42,31,20,0.75)';
@@ -771,7 +892,7 @@ G.renderGame = function() {
             // Glow circle
             ctx.fillStyle = `rgba(255,215,0,${pulse*0.35})`;
             ctx.beginPath(); ctx.arc(sx+ts/2, sy-22+bounce, 10, 0, Math.PI*2); ctx.fill();
-            ctx.fillStyle='#FFD700'; ctx.font='bold 15px sans-serif'; ctx.textAlign='center';
+            ctx.fillStyle='#FFD700'; ctx.font='bold 15px "Segoe UI", sans-serif'; ctx.textAlign='center';
             ctx.shadowColor='rgba(255,200,0,0.8)'; ctx.shadowBlur=8;
             ctx.fillText('!', sx+ts/2, sy-17+bounce);
             ctx.shadowBlur=0; ctx.textAlign='left';
@@ -784,7 +905,7 @@ G.renderGame = function() {
             const heartChar = rel.level >= 3 ? '♥' : rel.level >= 2 ? '♥' : '♡';
             const heartCol = rel.level >= 3 ? `rgba(255,215,0,${fAlpha})` : `rgba(255,110,140,${fAlpha})`;
             ctx.fillStyle = heartCol;
-            ctx.font = rel.level >= 2 ? 'bold 11px sans-serif' : '10px sans-serif';
+            ctx.font = rel.level >= 2 ? 'bold 11px "Segoe UI", sans-serif' : '11px "Segoe UI", sans-serif';
             ctx.textAlign='center';
             ctx.fillText(heartChar, sx+ts*0.82, sy-20+fhOff);
             ctx.textAlign='left';
@@ -801,7 +922,7 @@ G.renderGame = function() {
         ctx.globalAlpha = p.life;
         ctx.fillStyle = p.color;
         if (p.isHeart) {
-            ctx.font = `bold ${Math.round(p.size*2.2)}px sans-serif`;
+            ctx.font = `bold ${Math.round(p.size*2.2)}px "Segoe UI", sans-serif`;
             ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
             ctx.fillText('♥', p.sx, p.sy);
             ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
@@ -856,30 +977,42 @@ G.renderDialogue = function() {
     // Tiny character in portrait
     G.drawChar(ctx, pcx-pr*0.55, pcy-pr*0.9, pr*1.1, d.color||'#A07050', d.hair||'#664422', 'down', 0);
 
+    // Friendship hearts above portrait
+    if (friendship > 0) {
+        const heartColors = ['','#FF9BAA','#FF4466','#FFD700'];
+        ctx.font = 'bold 11px "Segoe UI", sans-serif';
+        const hearts = '♥'.repeat(friendship) + '♡'.repeat(3-friendship);
+        ctx.fillStyle = heartColors[friendship] || '#FF9BAA';
+        ctx.textAlign = 'center';
+        ctx.fillText(hearts, pcx, by+13);
+        ctx.textAlign = 'left';
+    }
+
     const tx = bx+20+pr*2+14;
     const maxW = bw - (tx-bx) - 24;
 
-    // Name badge
+    // Name badge — first name only to avoid overflow
+    const firstName = d.name.split(' ')[0];
+    ctx.font = 'bold 14px "Segoe UI", sans-serif';
+    const firstNameW = ctx.measureText(firstName).width + 20;
     ctx.fillStyle='rgba(80,55,20,0.7)';
-    const nameW = ctx.measureText(d.name).width + 20;
-    ctx.beginPath(); ctx.roundRect(tx, by+12, nameW, 22, 11); ctx.fill();
-    ctx.fillStyle='#E8C850'; ctx.font='bold 14px "Segoe UI", sans-serif';
-    ctx.fillText(d.name, tx+10, by+27);
+    ctx.beginPath(); ctx.roundRect(tx, by+12, firstNameW, 22, 11); ctx.fill();
+    ctx.fillStyle='#E8C850';
+    ctx.fillText(firstName, tx+10, by+27);
 
-    // Friendship hearts
-    if (friendship > 0) {
-        const heartColors = ['','#FF6B8A','#FF4466','#FFD700'];
-        ctx.font = '13px sans-serif';
-        const hearts = '♥'.repeat(friendship) + '♡'.repeat(3-friendship);
-        ctx.fillStyle = heartColors[friendship] || '#FF6B8A';
-        ctx.fillText(hearts, tx + nameW + 14, by+27);
+    // Full name / profession as subtle subtitle
+    if (d.name !== firstName) {
+        ctx.fillStyle='rgba(196,168,130,0.65)';
+        ctx.font='italic 11px "Segoe UI", sans-serif';
+        ctx.fillText(d.name, tx+4, by+45);
     }
 
     // Text with word-wrap
+    const textStartY = d.name !== firstName ? by+62 : by+52;
     ctx.fillStyle='#F5E6D3'; ctx.font='14px "Segoe UI", sans-serif';
     const line = d.lines[d.index]||'';
     const words = line.split(' ');
-    let ly = by+56, lx = tx, currentLine = '';
+    let ly = textStartY, lx = tx, currentLine = '';
     for (const word of words) {
         const test = currentLine + (currentLine?' ':'') + word;
         if (ctx.measureText(test).width > maxW && currentLine) {
@@ -888,13 +1021,6 @@ G.renderDialogue = function() {
         } else { currentLine = test; }
     }
     if (currentLine) ctx.fillText(currentLine, lx, ly);
-
-    // Blinking cursor at end of last line
-    const cursor = Math.floor(G.animTime*2)%2===0 ? '▌' : '';
-    if (cursor) {
-        ctx.fillStyle='rgba(245,230,211,0.7)';
-        ctx.fillText(cursor, lx+ctx.measureText(currentLine).width+2, ly);
-    }
 
     // Continue prompt — animated bounce
     const bounce = Math.sin(G.animTime*3)*2;
@@ -925,6 +1051,7 @@ G.renderMenu = function() {
         case 'build': title='✦ Construire'; break;
         case 'garden': title='✦ Potager'; break;
         case 'map': title='✦ Carte des Communes'; break;
+        case 'relations': title='✦ Relations & Amitiés'; break;
     }
     ctx.fillStyle='#E8C850'; ctx.font='bold 22px "Segoe UI", sans-serif';
     ctx.fillText(title, G.W/2, my+35);
@@ -935,7 +1062,7 @@ G.renderMenu = function() {
     if (ui.menu==='inventory') {
         const items = Object.entries(s.inventory).filter(([k,v])=>v>0);
         if (items.length===0) {
-            ctx.fillStyle='#C4A882'; ctx.font='15px sans-serif';
+            ctx.fillStyle='#C4A882'; ctx.font='15px "Segoe UI", sans-serif';
             ctx.fillText('Votre inventaire est vide.', contentX, contentY+20);
         }
         const maxVisible = Math.floor((mh-100)/32);
@@ -949,13 +1076,13 @@ G.renderMenu = function() {
             if (sel) { ctx.fillStyle='rgba(200,180,140,0.15)'; ctx.fillRect(contentX-5,iy-8,contentW,28); }
             ctx.fillStyle=item.icon||'#AAA';
             ctx.beginPath(); ctx.arc(contentX+12, iy+5, 8, 0, Math.PI*2); ctx.fill();
-            ctx.fillStyle='#F5E6D3'; ctx.font='15px sans-serif';
+            ctx.fillStyle='#F5E6D3'; ctx.font='15px "Segoe UI", sans-serif';
             ctx.fillText(`${item.name||key}  x${qty}`, contentX+30, iy+9);
         });
         // Scroll indicators
-        if (scroll>0) { ctx.fillStyle='#C4A882'; ctx.font='12px sans-serif'; ctx.fillText('▲ ...', contentX, contentY); }
-        if (scroll+maxVisible<items.length) { ctx.fillStyle='#C4A882'; ctx.font='12px sans-serif'; ctx.fillText('▼ ...', contentX, my+mh-30); }
-        ctx.fillStyle='#C4A882'; ctx.font='11px sans-serif';
+        if (scroll>0) { ctx.fillStyle='#C4A882'; ctx.font='12px "Segoe UI", sans-serif'; ctx.fillText('▲ ...', contentX, contentY); }
+        if (scroll+maxVisible<items.length) { ctx.fillStyle='#C4A882'; ctx.font='12px "Segoe UI", sans-serif'; ctx.fillText('▼ ...', contentX, my+mh-30); }
+        ctx.fillStyle='#C4A882'; ctx.font='11px "Segoe UI", sans-serif';
         ctx.fillText(`${items.length} objet(s)  [Haut/Bas] Defiler  [Echap] Fermer`, contentX, my+mh-12);
     }
 
@@ -975,10 +1102,10 @@ G.renderMenu = function() {
                 ctx.strokeRect(contentX-5,contentY+2,contentW,36);
             }
             ctx.fillStyle = done ? '#88CC66' : '#FFD700';
-            ctx.font='bold 16px sans-serif';
+            ctx.font='bold 16px "Segoe UI", sans-serif';
             ctx.fillText((done?'✓ ':'')+(qd?'★ '+qd.name+' ★':'Fête au Village'), contentX, contentY+20);
             ctx.fillStyle = done ? '#88AA66' : '#FFF';
-            ctx.font='12px sans-serif';
+            ctx.font='12px "Segoe UI", sans-serif';
             ctx.fillText(qd?qd.desc:'', contentX+20, contentY+34);
 
             // Sous-conditions
@@ -992,10 +1119,10 @@ G.renderMenu = function() {
 
             // Legumes
             ctx.fillStyle = cond.veggies ? '#88CC66' : '#E8C850';
-            ctx.font = 'bold 14px sans-serif';
+            ctx.font = 'bold 14px "Segoe UI", sans-serif';
             ctx.fillText((cond.veggies ? '✓ ' : '○ ') + 'Ramasser 3 de chaque légume', contentX, subY);
 
-            ctx.font = '12px sans-serif';
+            ctx.font = '12px "Segoe UI", sans-serif';
             let vegRow = 0;
             for (let i = 0; i < veggieDetails.length; i++) {
                 const v = veggieDetails[i];
@@ -1012,11 +1139,11 @@ G.renderMenu = function() {
             const invitableNpcs = DATA.NPCS.filter(n => n.id !== 'maire');
             const invitedCount = s.feteInvited.filter(id => id !== 'maire').length;
             ctx.fillStyle = cond.npcs ? '#88CC66' : '#E8C850';
-            ctx.font = 'bold 14px sans-serif';
+            ctx.font = 'bold 14px "Segoe UI", sans-serif';
             ctx.fillText((cond.npcs ? '✓ ' : '○ ') + `Inviter les habitants (${invitedCount}/${invitableNpcs.length})`, contentX, npcY);
 
             // Liste des NPCs invites (sans le maire)
-            ctx.font = '12px sans-serif';
+            ctx.font = '12px "Segoe UI", sans-serif';
             for (let i = 0; i < invitableNpcs.length; i++) {
                 const npc = invitableNpcs[i];
                 const invited = s.feteInvited.includes(npc.id);
@@ -1031,16 +1158,17 @@ G.renderMenu = function() {
             const maireY = npcY + 18 + Math.ceil(invitableNpcs.length / 3) * 18 + 10;
             const maireReady = cond.veggies && cond.npcs;
             ctx.fillStyle = maireReady ? '#88CC66' : (done ? '#88CC66' : '#888');
-            ctx.font = 'bold 14px sans-serif';
+            ctx.font = 'bold 14px "Segoe UI", sans-serif';
             ctx.fillText((done ? '✓ ' : '○ ') + 'Parler au Maire pour lancer la fête', contentX, maireY);
         } else {
             // Affichage normal des quetes
-            const nonFinal = s.quests.filter(q => { const qd=DATA.QUESTS.find(x=>x.id===q.id); return qd&&!qd.isFinal; });
-            const allNonFinalDone = nonFinal.every(q => q.status==='completed');
+            const nonFinal = s.quests.filter(q => { const qd=DATA.QUESTS.find(x=>x.id===q.id); return qd&&!qd.isFinal&&q.status!=='locked'; });
+            const allNonFinalDone = nonFinal.length > 0 && nonFinal.every(q => q.status==='completed');
             let yi=0;
             for (const q of s.quests) {
                 const qd = DATA.QUESTS.find(x=>x.id===q.id);
                 if (!qd) continue;
+                const isLocked = q.status === 'locked';
                 const iy = contentY+10+yi*40;
                 if (iy > my+mh-30) break;
                 const done = q.status==='completed';
@@ -1052,18 +1180,29 @@ G.renderMenu = function() {
                     ctx.fillRect(contentX-5,iy-8,contentW,36);
                     ctx.strokeStyle='#FFD700'; ctx.lineWidth=2;
                     ctx.strokeRect(contentX-5,iy-8,contentW,36);
-                    ctx.fillStyle='#FFD700'; ctx.font='bold 14px sans-serif';
+                    ctx.fillStyle='#FFD700'; ctx.font='bold 14px "Segoe UI", sans-serif';
                     ctx.fillText('★ '+qd.name+' ★', contentX, iy+8);
-                    ctx.fillStyle='#FFF'; ctx.font='bold 12px sans-serif';
+                    ctx.fillStyle='#FFF'; ctx.font='bold 12px "Segoe UI", sans-serif';
                     ctx.fillText(qd.desc, contentX+20, iy+24);
+                } else if (isLocked) {
+                    ctx.globalAlpha = 0.38;
+                    ctx.fillStyle = 'rgba(80,60,40,0.15)';
+                    ctx.fillRect(contentX-5,iy-8,contentW,36);
+                    ctx.fillStyle = '#887766';
+                    ctx.font='bold 13px "Segoe UI", sans-serif';
+                    ctx.fillText('🔒 ' + qd.name, contentX, iy+8);
+                    ctx.fillStyle = '#665544';
+                    ctx.font='11px "Segoe UI", sans-serif';
+                    ctx.fillText(qd.desc, contentX+20, iy+24);
+                    ctx.globalAlpha = 1;
                 } else {
                     ctx.fillStyle = done?'rgba(100,200,100,0.15)':'rgba(200,180,140,0.08)';
                     ctx.fillRect(contentX-5,iy-8,contentW,36);
                     ctx.fillStyle = done?'#88CC66':(isFinal?'#888':'#E8C850');
-                    ctx.font='bold 14px sans-serif';
+                    ctx.font='bold 14px "Segoe UI", sans-serif';
                     ctx.fillText((done?'✓ ':'○ ')+qd.name, contentX, iy+8);
                     ctx.fillStyle = done?'#88AA66':'#C4A882';
-                    ctx.font='12px sans-serif';
+                    ctx.font='12px "Segoe UI", sans-serif';
                     ctx.fillText(qd.desc, contentX+20, iy+24);
                 }
                 yi++;
@@ -1073,25 +1212,55 @@ G.renderMenu = function() {
 
     if (ui.menu==='build') {
         const entries = Object.entries(DATA.BUILDINGS);
+        let curY = contentY + 8;
+        let prevTier = 0;
+        const tierNames = {1:'⭐ Fondations', 2:'⭐⭐ Communauté', 3:'⭐⭐⭐ Village', 4:'⭐⭐⭐⭐ Prestige'};
         entries.forEach(([key, b], i) => {
-            const iy = contentY+10+i*38;
-            if (iy > my+mh-30) return;
-            const sel = i===ui.menuIndex;
-            if (sel) { ctx.fillStyle='rgba(200,180,140,0.2)'; ctx.fillRect(contentX-5,iy-8,contentW,34); }
-            // Can afford?
+            // Tier header
+            if (b.tier !== prevTier) {
+                prevTier = b.tier;
+                if (curY + 20 > my+mh-30) return;
+                if (curY > contentY+8) {
+                    ctx.fillStyle='rgba(196,168,130,0.2)';
+                    ctx.fillRect(contentX-5, curY, contentW, 1);
+                    curY += 6;
+                }
+                ctx.fillStyle='rgba(196,168,130,0.6)';
+                ctx.font='bold 11px "Segoe UI", sans-serif';
+                ctx.fillText(tierNames[b.tier]||`Tier ${b.tier}`, contentX, curY+10);
+                curY += 18;
+            }
+            if (curY + 32 > my+mh-30) return;
+            const sel = i === ui.menuIndex;
+            const unlocked = G.isBuildingUnlocked ? G.isBuildingUnlocked(key) : true;
             let canAfford = true;
-            const costStr = Object.entries(b.cost).map(([k,v])=>{
-                if ((s.inventory[k]||0)<v) canAfford=false;
+            const costStr = Object.entries(b.cost).map(([k,v]) => {
+                if ((s.inventory[k]||0) < v) canAfford = false;
                 return `${DATA.ITEMS[k]?.name||k}:${v}`;
             }).join(', ');
-            ctx.fillStyle = canAfford?(sel?'#F5E6D3':'#C4A882'):'#886666';
-            ctx.font='bold 14px sans-serif';
-            ctx.fillText((sel?'> ':'')+b.name, contentX, iy+8);
-            ctx.font='12px sans-serif';
-            ctx.fillText(`Cout: ${costStr}  |  Bonheur: +${b.happiness}`, contentX+20, iy+24);
+            if (sel) { ctx.fillStyle='rgba(200,180,140,0.2)'; ctx.fillRect(contentX-5, curY-4, contentW, 30); }
+            if (!unlocked) ctx.globalAlpha = 0.45;
+            ctx.fillStyle = !unlocked ? '#A89070' : canAfford ? (sel?'#F5E6D3':'#C4A882') : '#886666';
+            ctx.font = 'bold 13px "Segoe UI", sans-serif';
+            ctx.fillText((sel?'▶ ':'')+b.name, contentX, curY+8);
+            if (!unlocked) {
+                let hint = [];
+                if (b.requires.happiness) hint.push(`♥ ${b.requires.happiness}`);
+                if (b.requires.buildings) hint.push(`${b.requires.buildings} bâtiments`);
+                if (b.requires.built_one_of) hint.push(`après: ${b.requires.built_one_of.join('/')}`);
+                ctx.fillStyle = '#887766';
+                ctx.font = '10px "Segoe UI", sans-serif';
+                ctx.fillText(`🔒 Débloque avec ${hint.join(', ')}`, contentX+20, curY+21);
+            } else {
+                ctx.fillStyle = canAfford ? '#A89070' : '#886666';
+                ctx.font = '11px "Segoe UI", sans-serif';
+                ctx.fillText(`Coût: ${costStr}  ·  ♥ +${b.happiness}${b.attractsVillagers?' · +'+b.attractsVillagers+' hab.':''}`, contentX+20, curY+21);
+            }
+            ctx.globalAlpha = 1;
+            curY += 32;
         });
-        ctx.fillStyle='#C4A882'; ctx.font='12px sans-serif';
-        ctx.fillText('[Haut/Bas] Choisir  [Espace] Construire  [Echap] Fermer', contentX, my+mh-20);
+        ctx.fillStyle='#C4A882'; ctx.font='11px "Segoe UI", sans-serif';
+        ctx.fillText('[↑↓] Choisir  [Espace] Construire  [Echap] Fermer', contentX, my+mh-12);
     }
 
     if (ui.menu==='garden') {
@@ -1117,13 +1286,13 @@ G.renderMenu = function() {
                 const stageColors = ['','#C8A060','#7EC850','#5DA832','#FFD700','#FF8800'];
                 ctx.fillStyle = stageColors[p.stage]||'#C4A882';
                 ctx.beginPath(); ctx.roundRect(gx+8,gy+94,48,14,7); ctx.fill();
-                ctx.fillStyle='#1A0F08'; ctx.font='bold 9px sans-serif'; ctx.textAlign='center';
+                ctx.fillStyle='#1A0F08'; ctx.font='bold 11px "Segoe UI", sans-serif'; ctx.textAlign='center';
                 ctx.fillText(DATA.CROP_STAGES[p.stage]||'?', gx+32, gy+104);
                 ctx.textAlign='left';
             }
             // Crop name
             ctx.fillStyle = p.crop ? '#F5E6D3' : '#A89070';
-            ctx.font = 'bold 12px sans-serif';
+            ctx.font = 'bold 12px "Segoe UI", sans-serif';
             const cropD = p.crop ? DATA.CROPS[p.crop] : null;
             ctx.fillText(cropD ? cropD.name : 'Parcelle vide', gx+10, gy+122);
             if (p.crop && p.stage>0 && p.stage<5) {
@@ -1137,19 +1306,19 @@ G.renderMenu = function() {
                     ctx.fillStyle='rgba(91,155,213,0.85)';
                     ctx.beginPath(); ctx.roundRect(gx+10,gy+130,(barW*wc/needed)|0,barH,4); ctx.fill();
                 }
-                ctx.fillStyle='rgba(136,204,255,0.7)'; ctx.font='9px sans-serif';
+                ctx.fillStyle='rgba(136,204,255,0.7)'; ctx.font='11px "Segoe UI", sans-serif';
                 ctx.fillText(`💧 ${wc}/${needed}`, gx+10, gy+152);
                 if (sel && wc<needed) {
-                    ctx.fillStyle='#7EC850'; ctx.font='bold 11px sans-serif';
+                    ctx.fillStyle='#7EC850'; ctx.font='bold 11px "Segoe UI", sans-serif';
                     ctx.fillText('[Espace] Arroser', gx+10, gy+165);
                 }
             } else if (p.crop && p.stage>=5) {
-                ctx.fillStyle='#FFD700'; ctx.font='bold 11px sans-serif';
+                ctx.fillStyle='#FFD700'; ctx.font='bold 11px "Segoe UI", sans-serif';
                 const sp = Math.sin(G.animTime*4)*1;
                 ctx.fillText('✦ Prêt à récolter !', gx+10, gy+140+sp);
                 if (sel) ctx.fillText('[Espace] Récolter', gx+10, gy+157);
             } else if (!p.crop) {
-                if (sel) { ctx.fillStyle='#7EC850'; ctx.font='11px sans-serif'; ctx.fillText('[Espace] Planter', gx+10, gy+140); }
+                if (sel) { ctx.fillStyle='#7EC850'; ctx.font='11px "Segoe UI", sans-serif'; ctx.fillText('[Espace] Planter', gx+10, gy+140); }
             }
         });
         // Seed selection sub-menu
@@ -1161,14 +1330,14 @@ G.renderMenu = function() {
             ctx.beginPath(); ctx.roundRect(G.W/2-165, boxY, 330, boxH, 8); ctx.fill();
             ctx.strokeStyle='#C4A882'; ctx.lineWidth=2;
             ctx.beginPath(); ctx.roundRect(G.W/2-165, boxY, 330, boxH, 8); ctx.stroke();
-            ctx.fillStyle='#E8C850'; ctx.font='bold 16px sans-serif'; ctx.textAlign='center';
+            ctx.fillStyle='#E8C850'; ctx.font='bold 16px "Segoe UI", sans-serif'; ctx.textAlign='center';
             ctx.fillText('Choisir une graine', G.W/2, boxY+26);
             ctx.strokeStyle='rgba(196,168,130,0.25)'; ctx.lineWidth=1;
             ctx.beginPath(); ctx.moveTo(G.W/2-150, boxY+38); ctx.lineTo(G.W/2+150, boxY+38); ctx.stroke();
             ctx.textAlign='left';
             const seasonsFr = { printemps: 'Prin.', ete: 'Été', automne: 'Aut.', hiver: 'Hiver' };
             if (seeds.length===0) {
-                ctx.fillStyle='#C4A882'; ctx.font='14px sans-serif'; ctx.textAlign='center';
+                ctx.fillStyle='#C4A882'; ctx.font='14px "Segoe UI", sans-serif'; ctx.textAlign='center';
                 ctx.fillText('Aucune graine disponible !', G.W/2, boxY+80);
                 ctx.textAlign='left';
             }
@@ -1187,19 +1356,19 @@ G.renderMenu = function() {
                 ctx.fillStyle=item?.icon||'#AAA';
                 ctx.beginPath(); ctx.arc(G.W/2-138, iy+5, 6, 0, Math.PI*2); ctx.fill();
                 ctx.fillStyle = !canPlant ? '#885555' : (sel2?'#F5E6D3':'#C4A882');
-                ctx.font='13px sans-serif';
+                ctx.font='13px "Segoe UI", sans-serif';
                 const seasonTag = crop&&crop.season ? ` · ${crop.season.map(ss=>seasonsFr[ss]||ss).join('/')}` : '';
                 ctx.fillText(`${item?.name||key}  x${qty}${seasonTag}`, G.W/2-122, iy+9);
                 if (!canPlant) {
-                    ctx.fillStyle='rgba(255,80,80,0.7)'; ctx.font='10px sans-serif';
+                    ctx.fillStyle='rgba(255,80,80,0.7)'; ctx.font='11px "Segoe UI", sans-serif';
                     ctx.fillText('hors saison', G.W/2+60, iy+9);
                 }
             });
-            ctx.fillStyle='rgba(196,168,130,0.45)'; ctx.font='11px sans-serif'; ctx.textAlign='center';
+            ctx.fillStyle='rgba(196,168,130,0.45)'; ctx.font='11px "Segoe UI", sans-serif'; ctx.textAlign='center';
             ctx.fillText('[↑↓] Choisir  [Espace] Planter  [Échap] Annuler', G.W/2, boxY+boxH-10);
             ctx.textAlign='left';
         }
-        ctx.fillStyle='#C4A882'; ctx.font='12px sans-serif'; ctx.textAlign='left';
+        ctx.fillStyle='#C4A882'; ctx.font='12px "Segoe UI", sans-serif'; ctx.textAlign='left';
         ctx.fillText('[Fleches] Naviguer  [Espace] Action  [Echap] Fermer', contentX, my+mh-15);
     }
 
@@ -1253,11 +1422,11 @@ G.renderMenu = function() {
             }
             ctx.strokeStyle = visited?'rgba(255,255,255,0.5)':'#444'; ctx.lineWidth=1;
             ctx.beginPath(); ctx.arc(cx2,cy2,13,0,Math.PI*2); ctx.stroke();
-            ctx.fillStyle=visited?'#FFF':'#888'; ctx.font='bold 9px sans-serif'; ctx.textAlign='center';
+            ctx.fillStyle=visited?'#FFF':'#888'; ctx.font='bold 11px "Segoe UI", sans-serif'; ctx.textAlign='center';
             ctx.fillText(c.name.split(' ')[0].split('-')[0], cx2, cy2+3);
             // Unvisited label
             if (!visited) {
-                ctx.fillStyle='rgba(180,150,100,0.6)'; ctx.font='8px sans-serif';
+                ctx.fillStyle='rgba(180,150,100,0.6)'; ctx.font='10px "Segoe UI", sans-serif';
                 ctx.fillText('?', cx2, cy2+3);
             }
         }
@@ -1278,14 +1447,79 @@ G.renderMenu = function() {
         const visited = s.visitedCommunes.length;
         ctx.fillStyle=visited>=8?'#88CC66':'#C4A882'; ctx.font='12px "Segoe UI", sans-serif';
         ctx.fillText(`Communes visitées: ${visited}/8  ${visited>=8?'✓':''}`, contentX, my+mh-20);
-        ctx.fillStyle='rgba(196,168,130,0.5)'; ctx.font='11px sans-serif';
+        ctx.fillStyle='rgba(196,168,130,0.5)'; ctx.font='11px "Segoe UI", sans-serif';
         ctx.fillText('● Vous   ○ Non visitée', contentX+220, my+mh-20);
         ctx.textAlign='left';
     }
 
+    if (ui.menu==='relations') {
+        const npcs = DATA.NPCS;
+        const cols = 3;
+        const cardW = Math.floor(contentW / cols) - 8;
+        const cardH = 100;
+        npcs.forEach((npc, i) => {
+            const col2 = i % cols;
+            const row = Math.floor(i / cols);
+            const cx2 = contentX + col2 * (cardW + 8);
+            const cy2 = contentY + 10 + row * (cardH + 8);
+            if (cy2 + cardH > my+mh-30) return;
+            const rel = G.getFriendship(npc.id);
+            const stateNpc = s.npcs ? s.npcs.find(n => n.id === npc.id) : null;
+            // Card bg
+            const cardAlpha = rel.level >= 3 ? 'rgba(80,55,10,0.5)' : rel.level >= 1 ? 'rgba(60,40,20,0.45)' : 'rgba(40,28,16,0.35)';
+            ctx.fillStyle = cardAlpha;
+            ctx.beginPath(); ctx.roundRect(cx2, cy2, cardW, cardH, 6); ctx.fill();
+            ctx.strokeStyle = rel.level >= 3 ? '#FFD700' : rel.level >= 2 ? '#FF6688' : rel.level >= 1 ? 'rgba(255,180,180,0.4)' : 'rgba(196,168,130,0.2)';
+            ctx.lineWidth = rel.level >= 1 ? 1.5 : 1;
+            ctx.beginPath(); ctx.roundRect(cx2, cy2, cardW, cardH, 6); ctx.stroke();
+            // Portrait
+            const pr2 = 24;
+            const pcx3 = cx2 + pr2 + 10;
+            const pcy3 = cy2 + cardH/2;
+            ctx.fillStyle = 'rgba(60,40,20,0.7)';
+            ctx.beginPath(); ctx.arc(pcx3, pcy3, pr2, 0, Math.PI*2); ctx.fill();
+            ctx.strokeStyle = rel.level >= 3 ? '#FFD700' : rel.level >= 2 ? '#FF4466' : '#C4A882';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.arc(pcx3, pcy3, pr2, 0, Math.PI*2); ctx.stroke();
+            G.drawChar(ctx, pcx3-pr2*0.5, pcy3-pr2*0.9, pr2, npc.color, npc.hair, 'down', 0);
+            // Name
+            const tx3 = cx2 + pr2*2 + 18;
+            ctx.fillStyle = rel.level >= 1 ? '#F5E6D3' : '#A89070';
+            ctx.font = 'bold 12px "Segoe UI", sans-serif';
+            ctx.fillText(npc.name.split(' ')[0], tx3, cy2+20);
+            ctx.fillStyle = 'rgba(196,168,130,0.65)';
+            ctx.font = 'italic 10px "Segoe UI", sans-serif';
+            const commune = DATA.COMMUNES[npc.commune];
+            ctx.fillText(commune ? commune.name.split('-')[0] : '', tx3, cy2+34);
+            // Friendship hearts
+            const heartColors2 = ['#555','#FF9BAA','#FF4466','#FFD700'];
+            ctx.fillStyle = heartColors2[rel.level] || '#555';
+            ctx.font = '13px "Segoe UI", sans-serif';
+            const hearts2 = rel.level > 0 ? '♥'.repeat(rel.level)+'♡'.repeat(3-rel.level) : '♡♡♡';
+            ctx.fillText(hearts2, tx3, cy2+54);
+            // Friendship label
+            const fLabels = ['Inconnu(e)','Connaissance ♡','Ami(e) ♥','Meilleur(e) ami(e) ♥♥'];
+            ctx.fillStyle = heartColors2[rel.level] || '#555';
+            ctx.font = '10px "Segoe UI", sans-serif';
+            ctx.fillText(fLabels[rel.level]||'Inconnu(e)', tx3, cy2+68);
+            // Met status
+            if (stateNpc && !stateNpc.talked) {
+                ctx.fillStyle = 'rgba(255,215,0,0.65)';
+                ctx.font = '9px "Segoe UI", sans-serif';
+                ctx.fillText('! À rencontrer', tx3, cy2+84);
+            } else if (rel.trades > 0) {
+                ctx.fillStyle = 'rgba(196,168,130,0.4)';
+                ctx.font = '9px "Segoe UI", sans-serif';
+                ctx.fillText(`${rel.trades} échange(s)`, tx3, cy2+84);
+            }
+        });
+        ctx.fillStyle='#C4A882'; ctx.font='11px "Segoe UI", sans-serif';
+        ctx.fillText('[R] ou [Echap] Fermer', contentX, my+mh-12);
+    }
+
     // Escape hint
     if (ui.menu!=='garden' || ui.gardenMode!=='plant') {
-        ctx.fillStyle='rgba(245,230,211,0.4)'; ctx.font='11px sans-serif';
+        ctx.fillStyle='rgba(245,230,211,0.4)'; ctx.font='11px "Segoe UI", sans-serif';
         ctx.textAlign='right';
         ctx.fillText('[Echap] Fermer', mx+mw-15, my+mh-8);
         ctx.textAlign='left';

@@ -147,9 +147,26 @@ G.getPlayerGardenPlot = function() {
 };
 
 // --- Building system ---
+G.isBuildingUnlocked = function(typeKey) {
+    const b = DATA.BUILDINGS[typeKey];
+    if (!b) return false;
+    const s = G.state;
+    if (b.requires) {
+        if (b.requires.happiness && s.happiness < b.requires.happiness) return false;
+        if (b.requires.buildings && s.totalBuildings < b.requires.buildings) return false;
+        if (b.requires.built_one_of) {
+            const built = b.requires.built_one_of.some(bt =>
+                s.placedBuildings.some(p => p.type === bt));
+            if (!built) return false;
+        }
+    }
+    return true;
+};
+
 G.canBuild = function(typeKey) {
     const b = DATA.BUILDINGS[typeKey];
     if (!b) return false;
+    if (!G.isBuildingUnlocked(typeKey)) return false;
     for (const [res, qty] of Object.entries(b.cost)) {
         if (!G.hasItem(res, qty)) return false;
     }
@@ -163,8 +180,13 @@ G.hasBuildingAt = function(x, y) {
 G.buildStructure = function(typeKey) {
     const s = G.state;
     const b = DATA.BUILDINGS[typeKey];
-    if (!b || !G.canBuild(typeKey)) {
-        G.notify('Pas assez de materiaux!');
+    if (!b) { G.notify('Bâtiment inconnu !'); return false; }
+    if (!G.isBuildingUnlocked(typeKey)) {
+        G.notify('Ce bâtiment n\'est pas encore débloqué !');
+        return false;
+    }
+    if (!G.canBuild(typeKey)) {
+        G.notify('Pas assez de matériaux !');
         return false;
     }
     // Trouver la case devant le joueur
@@ -230,16 +252,17 @@ G.updateBuildingProduction = function() {
 G.checkQuests = function() {
     const s = G.state;
     for (const q of s.quests) {
-        if (q.status === 'completed') continue;
+        if (q.status === 'completed' || q.status === 'locked') continue;
         const qd = DATA.QUESTS.find(x => x.id === q.id);
         if (!qd) continue;
 
         let done = false;
         switch(qd.type) {
-            case 'talk':
+            case 'talk': {
                 const npc = s.npcs.find(n => n.id === qd.target);
                 if (npc && npc.talked) done = true;
                 break;
+            }
             case 'harvest':
                 done = s.totalHarvests >= qd.target;
                 break;
@@ -255,11 +278,17 @@ G.checkQuests = function() {
             case 'observe':
                 done = s.observedAnimals.length >= qd.target;
                 break;
+            case 'observe_species':
+                done = s.observedAnimals.includes(qd.target);
+                break;
             case 'build_count':
                 done = s.totalBuildings >= qd.target;
                 break;
             case 'happiness':
                 done = s.happiness >= qd.target;
+                break;
+            case 'collect_item':
+                done = G.hasItem(qd.item, qd.qty);
                 break;
             case 'fete_finale':
                 // Geree manuellement via interactNPC avec le maire
@@ -276,6 +305,16 @@ G.checkQuests = function() {
                 }
             }
             G.notify(`Quête terminée : ${qd.name} !`, 5);
+            // Unlock chained quests
+            if (qd.unlocks) {
+                for (const uid of qd.unlocks) {
+                    const uq = s.quests.find(q2 => q2.id === uid);
+                    if (uq && uq.status === 'locked') {
+                        uq.status = 'available';
+                        setTimeout(() => G.notify(`Nouvelle quête disponible !`, 4), 1200);
+                    }
+                }
+            }
         }
     }
     // Verifier si la quete finale est debloquee
@@ -286,9 +325,9 @@ G.checkFinalQuestUnlock = function() {
     const s = G.state;
     const nonFinal = s.quests.filter(q => {
         const qd = DATA.QUESTS.find(x => x.id === q.id);
-        return qd && !qd.isFinal;
+        return qd && !qd.isFinal && q.status !== 'locked';
     });
-    const allDone = nonFinal.every(q => q.status === 'completed');
+    const allDone = nonFinal.length > 0 && nonFinal.every(q => q.status === 'completed');
     if (allDone && !s._feteUnlocked) {
         s._feteUnlocked = true;
         G.notify('Toutes les quêtes sont terminées ! Objectif final : La Grande Fête !', 7);
@@ -316,8 +355,8 @@ G.raiseFriendship = function(npc) {
 
     // Friendship level-up gift
     if (rel.level > prev) {
-        const labels = ['','Amis!','Bons amis!','Meilleurs amis!'];
-        G.notify(`${npc.name.split(' ')[0]}: ${labels[rel.level]}`, 4);
+        const labels = ['','Connaissance ♡','Ami(e) ♥','Meilleur(e) ami(e) ♥♥'];
+        G.notify(`${npc.name.split(' ')[0]} : ${labels[rel.level]}`, 4);
         if (rel.level === 2 && !rel.giftGiven && npc.friendship_gift) {
             rel.giftGiven = true;
             for (const [k,v] of Object.entries(npc.friendship_gift)) G.addItem(k, v);
@@ -367,13 +406,17 @@ G.emitHearts = function(wx, wy) {
 // --- Pick NPC re-visit dialogue ---
 G.pickRevisitLine = function(npc) {
     const s = G.state;
-    // Seasonal line first
+    const rel = G.getFriendship(npc.id);
+    // Friend quips at friendship level >= 2 (30% chance)
+    if (rel.level >= 2 && npc.friend_quips && npc.friend_quips.length && Math.random() < 0.3) {
+        return npc.friend_quips[Math.floor(Math.random() * npc.friend_quips.length)];
+    }
+    // Seasonal line
     if (npc.seasonal && npc.seasonal[s.season]) {
         if (Math.random() < 0.45) return npc.seasonal[s.season];
     }
     // Quips rotation
     if (npc.quips && npc.quips.length) {
-        const rel = G.getFriendship(npc.id);
         const idx = rel.trades % npc.quips.length;
         return npc.quips[idx];
     }
@@ -596,14 +639,17 @@ G.updateWildlife = function(dt) {
     const s = G.state;
     const px = s.player.x, py = s.player.y;
     for (const w of s.wildlife) {
+        const wdata = DATA.WILDLIFE[w.type];
+        const isDomestic = !!(wdata?.domestic);
         const dToPlayer = G.dist(w.x, w.y, px, py);
-        if (dToPlayer < 4 && !s.observedAnimals.includes(w.type)) {
+        // Auto-observe only for non-domestic animals (domestic need Space press)
+        if (dToPlayer < 4 && !s.observedAnimals.includes(w.type) && !isDomestic) {
             s.observedAnimals.push(w.type);
-            const data = DATA.WILDLIFE[w.type];
-            G.notify(`Vous observez: ${data?.name||w.type}!`, 3);
+            G.notify(`Vous observez : ${wdata?.name||w.type} !`, 3);
             G.checkQuests();
         }
-        if (dToPlayer < 2.5) {
+        // Only non-domestic animals flee
+        if (dToPlayer < 2.5 && !isDomestic) {
             const angle = Math.atan2(w.y-py, w.x-px);
             w.tx = w.x + Math.cos(angle)*8;
             w.ty = w.y + Math.sin(angle)*8;
@@ -611,13 +657,14 @@ G.updateWildlife = function(dt) {
         }
         w.timer -= dt;
         if (w.timer <= 0 && !w.fleeing) {
-            w.tx = w.x + (Math.random()-0.5)*6;
-            w.ty = w.y + (Math.random()-0.5)*6;
+            const wander = isDomestic ? 3 : 6;
+            w.tx = w.x + (Math.random()-0.5)*wander;
+            w.ty = w.y + (Math.random()-0.5)*wander;
             w.tx = G.clamp(w.tx, 1, DATA.MAP_W-2);
             w.ty = G.clamp(w.ty, 1, DATA.MAP_H-2);
-            w.timer = 2 + Math.random()*4;
+            w.timer = (isDomestic ? 3 : 2) + Math.random()*4;
         }
-        const speed = (DATA.WILDLIFE[w.type]?.speed||0.3) * dt * 2;
+        const speed = (wdata?.speed||0.3) * dt * 2;
         const dx = w.tx - w.x, dy = w.ty - w.y;
         const d = Math.hypot(dx, dy);
         if (d > 0.1) { w.x += (dx/d)*speed; w.y += (dy/d)*speed; }
@@ -676,15 +723,23 @@ G.checkNewVillagers = function() {
 
     // Conditions met — pick count from sequence
     const seq = G.ARRIVAL_SEQ;
-    const count = s.arrivalIndex < seq.length ? seq[s.arrivalIndex] : 2;
+    // attractsVillagers bonus from buildings
+    let attracts = 0;
+    for (const b of (s.placedBuildings||[])) {
+        const bd = DATA.BUILDINGS[b.type];
+        if (bd && bd.attractsVillagers) attracts += bd.attractsVillagers;
+    }
+    const attractBonus = Math.min(3, Math.floor(attracts / 2));
+    const base = s.arrivalIndex < seq.length ? seq[s.arrivalIndex] : 2;
+    const count = base + attractBonus;
     s.arrivalIndex++;
     s.villagers += count;
     if (s.villagers > DATA.GOAL_VILLAGERS) s.villagers = DATA.GOAL_VILLAGERS;
 
     if (count === 1) {
-        G.notify(`Un nouvel habitant s'installe! (${s.villagers}/${DATA.GOAL_VILLAGERS})`, 5);
+        G.notify(`Un nouvel habitant s'installe ! (${s.villagers}/${DATA.GOAL_VILLAGERS})`, 5);
     } else {
-        G.notify(`${count} nouveaux habitants s'installent! (${s.villagers}/${DATA.GOAL_VILLAGERS})`, 5);
+        G.notify(`${count} nouveaux habitants s'installent ! (${s.villagers}/${DATA.GOAL_VILLAGERS})`, 5);
     }
 
     // Declenchement de la fete a 100 habitants
@@ -808,6 +863,23 @@ G.interact = function() {
     // Check NPC (devant ou adjacent)
     for (const npc of s.npcs) {
         if (npc.x === tx && npc.y === ty) { G.interactNPC(npc); return; }
+    }
+
+    // Check for nearby domestic animal (Space to observe)
+    const nearDomestic = s.wildlife ? s.wildlife.find(w => {
+        const wdata = DATA.WILDLIFE[w.type];
+        return wdata?.domestic && G.dist(w.x, w.y, s.player.x, s.player.y) < 2;
+    }) : null;
+    if (nearDomestic) {
+        const wdata = DATA.WILDLIFE[nearDomestic.type];
+        if (!s.observedAnimals.includes(nearDomestic.type)) {
+            s.observedAnimals.push(nearDomestic.type);
+            G.notify(`Vous observez : ${wdata.name} ! Quel calme...`, 3);
+            G.checkQuests();
+        } else {
+            G.notify(`${wdata.name}... quelle sérénité. ♥`, 2);
+        }
+        return;
     }
 
     // Check resource devant ou sous les pieds

@@ -175,6 +175,8 @@ G.handleKey = function(key, e) {
             break;
         case 'm': case 'M':
             s.ui.menu = 'map'; break;
+        case 'r': case 'R':
+            s.ui.menu = 'relations'; break;
     }
 };
 
