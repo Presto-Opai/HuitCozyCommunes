@@ -123,12 +123,10 @@ G.generateMap = function() {
         }
     }
 
-    // River from north to south through center
+    // River first, then villages, then paths last so paths can clear through terrain
     G.addRiver(map);
-    // Paths between communes
-    G.addPaths(map);
-    // Village features at each commune center
     G.addVillages(map);
+    G.addPaths(map);
 
     return map;
 };
@@ -181,14 +179,16 @@ G.addPaths = function(map) {
 
 G.drawPath = function(map, x1,y1, x2,y2) {
     const T = DATA.TILES;
+    // Don't overwrite structural village tiles with path
+    const protect = new Set([T.WALL, T.ROOF_RED, T.ROOF_BLUE, T.DOOR, T.FENCE, T.CHAPEL, T.SIGN, T.WELL, T.BENCH]);
+    const setPath = (px, py) => {
+        const t = map[py][px];
+        if (t === T.WATER || t === T.DEEP_WATER) map[py][px] = T.BRIDGE;
+        else if (!protect.has(t)) map[py][px] = T.PATH;
+    };
     let x=x1, y=y1;
     while (x!==x2 || y!==y2) {
-        if (map[y][x] === T.WATER || map[y][x] === T.DEEP_WATER) {
-            map[y][x] = T.BRIDGE;
-        } else if (map[y][x] !== T.BRIDGE) {
-            map[y][x] = T.PATH;
-        }
-        // Move toward target with slight bias for more natural paths
+        setPath(x, y);
         if (Math.abs(x-x2) > Math.abs(y-y2)) {
             x += x<x2 ? 1 : -1;
         } else if (y !== y2) {
@@ -197,7 +197,7 @@ G.drawPath = function(map, x1,y1, x2,y2) {
             x += x<x2 ? 1 : -1;
         }
     }
-    map[y2][x2] = T.PATH;
+    setPath(x2, y2);
 };
 
 G.addVillages = function(map) {
@@ -270,30 +270,13 @@ G.addVillages = function(map) {
         }
     }
     if (robertY+1 < DATA.MAP_H) {
-        map[robertY+1][robertX] = T.BRIDGE; // extend dock one tile south
+        map[robertY+1][robertX] = T.BRIDGE; // extend dock south
     }
 
-    // Auberge building for Jeanne (midpoint Athis→Ronfeugerai)
-    const jeanneX = ac.cx + 3, jeanneY = ac.cy - 12; // matches NPC rx:3, ry:-12
-    G.placeBuilding(map, jeanneX - 1, jeanneY - 2, 3, 2);
-    // Clear area around auberge
-    for (let dy=-1; dy<=1; dy++) {
-        for (let dx=-2; dx<=2; dx++) {
-            const tx=jeanneX+dx, ty=jeanneY+dy;
-            if (tx>=0&&tx<DATA.MAP_W&&ty>=0&&ty<DATA.MAP_H) {
-                if (map[ty][tx]===T.TREE||map[ty][tx]===T.DENSE_TREE||map[ty][tx]===T.ROCK) {
-                    map[ty][tx] = T.GRASS;
-                }
-            }
-        }
-    }
-    // Small path to auberge from main road
-    if (jeanneY+1 < DATA.MAP_H) map[jeanneY+1][jeanneX] = T.PATH;
-
-    // Chapel at ND-Rocher
+    // Chapel at ND-Rocher (placed west of commune center to avoid path conflicts)
     const nd = DATA.COMMUNES.ndrocher;
-    G.placeBuilding(map, nd.cx+2, nd.cy-2, 3, 3);
-    if (nd.cy-3>=0 && nd.cx+3<DATA.MAP_W) map[nd.cy-3][nd.cx+3] = T.CHAPEL;
+    G.placeBuilding(map, nd.cx-5, nd.cy-2, 3, 3);
+    if (nd.cy-3>=0 && nd.cx-3>=0) map[nd.cy-3][nd.cx-3] = T.CHAPEL;
 };
 
 G.placeBuilding = function(map, bx, by, w, h) {
@@ -334,7 +317,7 @@ G.defaultState = function() {
         placedBuildings: [],
         garden: { plots: gardenPlots },
         inventory: {},
-        quests: DATA.QUESTS.map(q => ({id:q.id, status:'available'})),
+        quests: DATA.QUESTS.map(q => ({id:q.id, status: q.locked ? 'locked' : 'available'})),
         npcs: npcs,
         wildlife: [],
         resources: [],
