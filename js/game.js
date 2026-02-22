@@ -92,8 +92,16 @@ G.handleKey = function(key, e) {
             s.ui.gardenMode = null;
         } else if (s.ui.menu === 'build') {
             const entries = Object.entries(DATA.BUILDINGS);
-            if (key === 'ArrowUp' || key === 'z') s.ui.menuIndex = Math.max(0, s.ui.menuIndex-1);
-            if (key === 'ArrowDown' || key === 's') s.ui.menuIndex = Math.min(entries.length-1, s.ui.menuIndex+1);
+            if (!s.ui.buildScroll) s.ui.buildScroll = 0;
+            if (key === 'ArrowUp' || key === 'z') {
+                s.ui.menuIndex = Math.max(0, s.ui.menuIndex-1);
+                if (s.ui.menuIndex < s.ui.buildScroll) s.ui.buildScroll = s.ui.menuIndex;
+            }
+            if (key === 'ArrowDown' || key === 's') {
+                s.ui.menuIndex = Math.min(entries.length-1, s.ui.menuIndex+1);
+                const maxVis = 10;
+                if (s.ui.menuIndex >= s.ui.buildScroll+maxVis) s.ui.buildScroll = s.ui.menuIndex-maxVis+1;
+            }
             if (key === ' ' || key === 'Enter') {
                 const [typeKey] = entries[s.ui.menuIndex] || [];
                 if (typeKey) {

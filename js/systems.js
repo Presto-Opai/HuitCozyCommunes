@@ -929,7 +929,9 @@ G.movePlayer = function(dx, dy) {
     const commune = G.getCommune(nx, ny);
     if (commune && !s.visitedCommunes.includes(commune)) {
         s.visitedCommunes.push(commune);
-        G.notify(`Bienvenue a ${DATA.COMMUNES[commune].name}!`, 3);
+        const cName = DATA.COMMUNES[commune].name;
+        const prefix = cName.startsWith('Les ') ? 'aux ' + cName.slice(4) : 'à ' + cName;
+        G.notify(`Bienvenue ${prefix} !`, 3);
         G.checkQuests();
     }
 
