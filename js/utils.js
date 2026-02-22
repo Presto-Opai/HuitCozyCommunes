@@ -207,8 +207,13 @@ G.addVillages = function(map) {
         // Small building cluster at each commune center
         // Main building
         G.placeBuilding(map, cx-1, cy-2, 3, 2);
-        // Sign post
-        if (cy+3 < DATA.MAP_H) map[cy+3][cx] = T.SIGN;
+        // Sign post (Ronfeugerai: placed east toward the riverbank)
+        if (key === 'ronfeugerai') {
+            const sx = cx+3, sy = cy+1;
+            if (sx<DATA.MAP_W && sy<DATA.MAP_H) map[sy][sx] = T.SIGN;
+        } else {
+            if (cy+3 < DATA.MAP_H) map[cy+3][cx] = T.SIGN;
+        }
         // Clear area around center
         for (let dy=-1; dy<=1; dy++) {
             for (let dx=-2; dx<=2; dx++) {
@@ -239,12 +244,17 @@ G.addVillages = function(map) {
             }
         }
     }
-    // Fence around garden
+    // Fence around garden (with 2-tile entrance at top center)
     for (let dx=-1;dx<=4;dx++) {
         const gx=ac.cx-5+dx;
         const gy1=ac.cy+3, gy2=ac.cy+6;
         if (gx>=0&&gx<DATA.MAP_W) {
-            if (gy1>=0&&gy1<DATA.MAP_H&&map[gy1][gx]!==T.PATH) map[gy1][gx]=T.FENCE;
+            // Leave a 2-tile opening in the top fence (dx 1 and 2 = center)
+            if (dx !== 1 && dx !== 2) {
+                if (gy1>=0&&gy1<DATA.MAP_H&&map[gy1][gx]!==T.PATH) map[gy1][gx]=T.FENCE;
+            } else {
+                if (gy1>=0&&gy1<DATA.MAP_H) map[gy1][gx]=T.PATH;
+            }
             if (gy2>=0&&gy2<DATA.MAP_H) map[gy2][gx]=T.FENCE;
         }
     }

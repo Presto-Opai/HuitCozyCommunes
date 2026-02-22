@@ -506,6 +506,9 @@ const DATA = {
         martin:    { name: 'Martin-pêcheur', color: '#2288CC', size: 0.4, speed: 0.7, communes: ['ronfeugerai','athis'] },
         pie:       { name: 'Pie',            color: '#222222', size: 0.35, speed: 0.9, communes: ['athis','breel','ronfeugerai'] },
         corneille: { name: 'Corneille',      color: '#111111', size: 0.45, speed: 0.6, communes: ['carneille','ndrocher'] },
+        blaireau:  { name: 'Blaireau',       color: '#555544', size: 0.7, speed: 0.25, communes: ['taillebois','carneille','segrie'] },
+        salamandre:{ name: 'Salamandre',     color: '#222222', size: 0.3, speed: 0.15, communes: ['segrie','ronfeugerai','ndrocher'] },
+        heron:     { name: 'Héron cendré',   color: '#99AABB', size: 1.1, speed: 0.2,  communes: ['ronfeugerai','athis'] },
         // Animaux domestiques – domestic:true → ne fuit pas, observation manuelle
         poule:     { name: 'Poule',          color: '#CC8844', size: 0.4, speed: 0.25, communes: ['breel','athis'], domestic: true },
         vache:     { name: 'Vache',          color: '#DDBBA8', size: 1.5, speed: 0.1,  communes: ['breel','segrie'], domestic: true },

@@ -336,6 +336,57 @@ G.drawAnimal = function(ctx, sx, sy, s, type, frame) {
             ctx.fillRect(cx-sz*0.2,cy+sz*0.18,sz*0.06,sz*0.22); ctx.fillRect(cx-sz*0.05,cy+sz*0.18,sz*0.06,sz*0.22);
             ctx.fillRect(cx+sz*0.1,cy+sz*0.18,sz*0.06,sz*0.22); ctx.fillRect(cx+sz*0.25,cy+sz*0.18,sz*0.06,sz*0.22);
             break;
+        case 'blaireau':
+            ctx.fillStyle = col;
+            ctx.beginPath(); ctx.ellipse(cx, cy+sz*0.05, sz*0.28, sz*0.18, 0, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(cx+sz*0.24, cy-sz*0.06, sz*0.12, 0, Math.PI*2); ctx.fill();
+            // White face stripes
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(cx+sz*0.18, cy-sz*0.18, sz*0.04, sz*0.2);
+            ctx.fillRect(cx+sz*0.26, cy-sz*0.18, sz*0.04, sz*0.2);
+            // Short legs
+            ctx.fillStyle = '#333322';
+            ctx.fillRect(cx-sz*0.2,cy+sz*0.16,sz*0.07,sz*0.16); ctx.fillRect(cx-sz*0.04,cy+sz*0.16,sz*0.07,sz*0.16);
+            ctx.fillRect(cx+sz*0.1,cy+sz*0.16,sz*0.07,sz*0.16); ctx.fillRect(cx+sz*0.22,cy+sz*0.16,sz*0.07,sz*0.16);
+            break;
+        case 'salamandre':
+            ctx.fillStyle = col;
+            ctx.beginPath(); ctx.ellipse(cx, cy+sz*0.05, sz*0.22, sz*0.08, 0, 0, Math.PI*2); ctx.fill();
+            // Head
+            ctx.beginPath(); ctx.arc(cx+sz*0.2, cy+sz*0.03, sz*0.08, 0, Math.PI*2); ctx.fill();
+            // Tail
+            ctx.beginPath(); ctx.moveTo(cx-sz*0.2, cy+sz*0.05);
+            ctx.quadraticCurveTo(cx-sz*0.35, cy-sz*0.05, cx-sz*0.42, cy+sz*0.08);
+            ctx.lineWidth = sz*0.05; ctx.strokeStyle = col; ctx.stroke();
+            // Yellow spots
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath(); ctx.arc(cx-sz*0.08, cy+sz*0.02, sz*0.03, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(cx+sz*0.06, cy+sz*0.04, sz*0.025, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(cx-sz*0.02, cy+sz*0.08, sz*0.02, 0, Math.PI*2); ctx.fill();
+            // Tiny legs
+            ctx.fillStyle = col;
+            ctx.fillRect(cx-sz*0.12,cy+sz*0.1,sz*0.04,sz*0.08); ctx.fillRect(cx+sz*0.08,cy+sz*0.1,sz*0.04,sz*0.08);
+            break;
+        case 'heron':
+            // Long legs
+            ctx.strokeStyle = '#667788'; ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.moveTo(cx-sz*0.04,cy+sz*0.15); ctx.lineTo(cx-sz*0.06,cy+sz*0.42); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(cx+sz*0.06,cy+sz*0.15); ctx.lineTo(cx+sz*0.04,cy+sz*0.42); ctx.stroke();
+            // Body
+            ctx.fillStyle = col;
+            ctx.beginPath(); ctx.ellipse(cx, cy, sz*0.18, sz*0.16, -0.2, 0, Math.PI*2); ctx.fill();
+            // Long neck
+            ctx.strokeStyle = col; ctx.lineWidth = sz*0.08;
+            ctx.beginPath(); ctx.moveTo(cx+sz*0.1, cy-sz*0.08);
+            ctx.quadraticCurveTo(cx+sz*0.15, cy-sz*0.28, cx+sz*0.2, cy-sz*0.35);
+            ctx.stroke();
+            // Head
+            ctx.fillStyle = '#BBCCDD';
+            ctx.beginPath(); ctx.arc(cx+sz*0.2, cy-sz*0.38, sz*0.08, 0, Math.PI*2); ctx.fill();
+            // Long beak
+            ctx.fillStyle = '#DDAA44';
+            ctx.beginPath(); ctx.moveTo(cx+sz*0.27,cy-sz*0.39); ctx.lineTo(cx+sz*0.46,cy-sz*0.37); ctx.lineTo(cx+sz*0.27,cy-sz*0.35); ctx.fill();
+            break;
         default:
             ctx.fillStyle = col;
             ctx.beginPath(); ctx.arc(cx, cy, sz*0.15, 0, Math.PI*2); ctx.fill();
@@ -346,6 +397,9 @@ G.drawAnimal = function(ctx, sx, sy, s, type, frame) {
     if (type==='cerf'||type==='biche') ctx.arc(cx+sz*0.33,cy-sz*0.15,sz*0.025,0,Math.PI*2);
     else if (type==='renard') ctx.arc(cx+sz*0.28,cy-sz*0.1,sz*0.025,0,Math.PI*2);
     else if (type==='canard') ctx.arc(cx+sz*0.18,cy-sz*0.12,sz*0.025,0,Math.PI*2);
+    else if (type==='blaireau') ctx.arc(cx+sz*0.27,cy-sz*0.08,sz*0.025,0,Math.PI*2);
+    else if (type==='heron') ctx.arc(cx+sz*0.22,cy-sz*0.39,sz*0.02,0,Math.PI*2);
+    else if (type==='salamandre') ctx.arc(cx+sz*0.22,cy+sz*0.02,sz*0.015,0,Math.PI*2);
     else ctx.arc(cx+sz*0.06,cy-sz*0.02,sz*0.025,0,Math.PI*2);
     ctx.fill();
 };
@@ -1212,15 +1266,24 @@ G.renderMenu = function() {
 
     if (ui.menu==='build') {
         const entries = Object.entries(DATA.BUILDINGS);
+        const buildScroll = ui.buildScroll || 0;
         let curY = contentY + 8;
         let prevTier = 0;
         const tierNames = {1:'⭐ Fondations', 2:'⭐⭐ Communauté', 3:'⭐⭐⭐ Village', 4:'⭐⭐⭐⭐ Prestige'};
+        // Show scroll indicator at top
+        if (buildScroll > 0) {
+            ctx.fillStyle='#C4A882'; ctx.font='11px "Lora", Georgia, serif';
+            ctx.fillText('▲ ...', contentX, curY+8);
+            curY += 14;
+        }
+        let visibleCount = 0;
         entries.forEach(([key, b], i) => {
+            if (i < buildScroll) { prevTier = b.tier; return; }
             // Tier header
             if (b.tier !== prevTier) {
                 prevTier = b.tier;
                 if (curY + 20 > my+mh-30) return;
-                if (curY > contentY+8) {
+                if (curY > contentY+8 && i > buildScroll) {
                     ctx.fillStyle='rgba(196,168,130,0.2)';
                     ctx.fillRect(contentX-5, curY, contentW, 1);
                     curY += 6;
@@ -1230,7 +1293,15 @@ G.renderMenu = function() {
                 ctx.fillText(tierNames[b.tier]||`Tier ${b.tier}`, contentX, curY+10);
                 curY += 18;
             }
-            if (curY + 32 > my+mh-30) return;
+            if (curY + 32 > my+mh-30) {
+                // Show scroll indicator at bottom if items remain
+                if (i < entries.length - 1 && visibleCount > 0) {
+                    ctx.fillStyle='#C4A882'; ctx.font='11px "Lora", Georgia, serif';
+                    ctx.fillText('▼ ...', contentX, my+mh-32);
+                }
+                return;
+            }
+            visibleCount++;
             const sel = i === ui.menuIndex;
             const unlocked = G.isBuildingUnlocked ? G.isBuildingUnlocked(key) : true;
             let canAfford = true;
