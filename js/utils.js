@@ -270,6 +270,18 @@ G.addVillages = function(map) {
     // Well at Athis
     if (ac.cy+1<DATA.MAP_H && ac.cx+3<DATA.MAP_W) map[ac.cy+1][ac.cx+3] = T.WELL;
 
+    // Athis: passage east of mairie to reach Ronfeugerai (north)
+    // Mairie = (cx-1..cx+1, cy-2..cy-1), detour via x=cx+2
+    const mx = ac.cx + 2; // east side of mairie
+    for (let y = ac.cy - 3; y <= ac.cy; y++) {
+        if (mx<DATA.MAP_W && y>=0 && y<DATA.MAP_H) map[y][mx] = T.PATH;
+    }
+    // Connect detour back to main north path at y=cy-3
+    for (let x = ac.cx; x < mx; x++) {
+        const y = ac.cy - 3;
+        if (x>=0 && x<DATA.MAP_W && y>=0 && y<DATA.MAP_H) map[y][x] = T.PATH;
+    }
+
     // Fishing platform under Robert le Pêcheur at Ronfeugerai
     const rf = DATA.COMMUNES.ronfeugerai;
     const robertX = rf.cx + 1, robertY = rf.cy + 2; // matches NPC rx:1, ry:2

@@ -1382,7 +1382,7 @@ G.renderMenu = function() {
                 let hint = [];
                 if (b.requires.happiness) hint.push(`♥ ${b.requires.happiness}`);
                 if (b.requires.buildings) hint.push(`${b.requires.buildings} bâtiments`);
-                if (b.requires.built_one_of) hint.push(`après: ${b.requires.built_one_of.join('/')}`);
+                if (b.requires.built_one_of) hint.push(`après: ${b.requires.built_one_of.map(k => DATA.BUILDINGS[k]?.name || k).join(' / ')}`);
                 ctx.fillStyle = '#887766';
                 ctx.font = '10px "Lora", Georgia, serif';
                 ctx.fillText(`🔒 Débloque avec ${hint.join(', ')}`, contentX+20, curY+21);
