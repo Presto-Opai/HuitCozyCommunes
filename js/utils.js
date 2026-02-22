@@ -354,6 +354,7 @@ G.defaultState = function() {
         },
         particles: [],
         relationships: {},
+        deliveries: [],
         feteActive: false,
         feteInvited: [],
         fetePhase: null,
